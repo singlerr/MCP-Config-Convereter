@@ -6,7 +6,7 @@ import { ConvertButton } from '@/components/ConvertButton';
 import { CopyButton } from '@/components/CopyButton';
 import { FormatInfo } from '@/components/FormatInfo';
 import { ExampleConfigs } from '@/components/ExampleConfigs';
-import { convertConfig, parseToUniversal } from '@/lib/mcp-converter';
+import { convertConfig } from '@/lib/mcp-converter';
 import { detectFormat, type EditorType } from '@/lib/mcp-formats';
 import { AlertCircle, CheckCircle2, ArrowRightLeft } from 'lucide-react';
 import { toast } from 'sonner';
@@ -25,14 +25,28 @@ const Index = () => {
     setOutputConfig('');
     setServerCount(0);
 
-    // Auto-detect format
+    // Auto-detect format (try flexible parsing)
     if (value.trim()) {
       try {
-        const parsed = JSON.parse(value);
-        const detected = detectFormat(parsed);
-        if (detected && !sourceFormat) {
-          setSourceFormat(detected);
-          toast.info(`${detected} 포맷이 감지되었습니다`);
+        // Try normal parse first
+        let parsed: unknown;
+        const trimmed = value.trim();
+        
+        try {
+          parsed = JSON.parse(trimmed);
+        } catch {
+          // Try wrapping with braces
+          if (trimmed.startsWith('"')) {
+            parsed = JSON.parse(`{${trimmed}}`);
+          }
+        }
+        
+        if (parsed) {
+          const detected = detectFormat(parsed);
+          if (detected && !sourceFormat) {
+            setSourceFormat(detected);
+            toast.info(`${detected} 포맷이 감지되었습니다`);
+          }
         }
       } catch {
         // Invalid JSON, will show error on convert
@@ -48,23 +62,13 @@ const Index = () => {
 
     const result = convertConfig(inputConfig, sourceFormat, targetFormat);
 
-    if (result.success) {
+    if (result.success === true) {
       setOutputConfig(result.output);
       setError(null);
-      
-      // Count servers
-      try {
-        const parsed = JSON.parse(inputConfig);
-        const universal = parseToUniversal(parsed, sourceFormat);
-        setServerCount(universal.servers.length);
-      } catch {
-        setServerCount(0);
-      }
-      
+      setServerCount(result.serverCount);
       toast.success('변환이 완료되었습니다!');
     } else {
-      const errorResult = result as { success: false; error: string };
-      setError(errorResult.error);
+      setError(result.error);
       setOutputConfig('');
       setServerCount(0);
     }

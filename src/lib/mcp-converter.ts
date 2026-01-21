@@ -54,12 +54,28 @@ export function parseToUniversal(config: unknown, sourceFormat: EditorType): Uni
     case 'opencode': {
       const cfg = config as OpenCodeConfig;
       for (const [name, server] of Object.entries(cfg.mcp || {})) {
+        // Handle command as array (OpenCode uses ["uvx", "perplexica-mcp", "stdio"])
+        const cmdArray = server.command as unknown;
+        let command: string | undefined;
+        let args: string[] | undefined;
+        
+        if (Array.isArray(cmdArray)) {
+          command = cmdArray[0];
+          args = cmdArray.slice(1);
+        } else {
+          command = server.command;
+          args = server.args;
+        }
+        
+        // Handle both "env" and "environment" keys
+        const env = server.env || (server as Record<string, unknown>).environment as Record<string, string> | undefined;
+        
         servers.push({
           name,
           transport: server.type === 'remote' || server.url ? 'http' : 'stdio',
-          command: server.command,
-          args: server.args,
-          env: server.env,
+          command,
+          args,
+          env,
           cwd: server.cwd,
           url: server.url,
           headers: server.http_headers,
@@ -188,23 +204,83 @@ export function convertFromUniversal(universal: UniversalConfig, targetFormat: E
   }
 }
 
+// Try to fix incomplete JSON (e.g., `"mcp": {...}` without outer braces)
+function normalizeJsonInput(input: string): string {
+  const trimmed = input.trim();
+  
+  // If it already starts with {, try parsing as-is first
+  if (trimmed.startsWith('{')) {
+    return trimmed;
+  }
+  
+  // If it starts with a key like "mcp": or "mcpServers":, wrap it
+  if (trimmed.startsWith('"')) {
+    return `{${trimmed}}`;
+  }
+  
+  return trimmed;
+}
+
+// Try multiple JSON parsing strategies
+function parseJsonFlexible(input: string): unknown {
+  const trimmed = input.trim();
+  
+  // Strategy 1: Direct parse
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    // Continue to next strategy
+  }
+  
+  // Strategy 2: Wrap with braces if starts with key
+  if (trimmed.startsWith('"')) {
+    try {
+      return JSON.parse(`{${trimmed}}`);
+    } catch {
+      // Continue
+    }
+  }
+  
+  // Strategy 3: Handle case where user pasted inner content
+  // e.g., "mcp": { ... } without outer { }
+  const keyMatch = trimmed.match(/^"(\w+)":\s*\{/);
+  if (keyMatch) {
+    try {
+      return JSON.parse(`{${trimmed}}`);
+    } catch {
+      // Continue
+    }
+  }
+  
+  throw new Error('유효하지 않은 JSON 형식입니다. 전체 설정 파일을 복사해서 붙여넣어 주세요.');
+}
+
 export function convertConfig(
   inputConfig: string,
   sourceFormat: EditorType,
   targetFormat: EditorType
-): { success: true; output: string } | { success: false; error: string } {
+): { success: true; output: string; serverCount: number } | { success: false; error: string } {
   try {
-    const parsed = JSON.parse(inputConfig);
+    const parsed = parseJsonFlexible(inputConfig);
     const universal = parseToUniversal(parsed, sourceFormat);
+    
+    if (universal.servers.length === 0) {
+      return {
+        success: false,
+        error: '변환할 MCP 서버를 찾을 수 없습니다. 올바른 형식인지 확인해 주세요.',
+      };
+    }
+    
     const converted = convertFromUniversal(universal, targetFormat);
     return {
       success: true,
       output: JSON.stringify(converted, null, 2),
+      serverCount: universal.servers.length,
     };
   } catch (err) {
     return {
       success: false,
-      error: err instanceof Error ? err.message : 'Unknown error occurred',
+      error: err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.',
     };
   }
 }
