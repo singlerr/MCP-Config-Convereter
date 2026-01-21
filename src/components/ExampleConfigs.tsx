@@ -56,8 +56,11 @@ const examples: Record<EditorType, string> = {
       "enabled": true
     },
     "local-server": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-everything"],
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-everything"],
+      "environment": {
+        "NODE_ENV": "production"
+      },
       "enabled": true
     }
   }

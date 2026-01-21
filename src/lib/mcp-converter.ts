@@ -55,20 +55,19 @@ export function parseToUniversal(config: unknown, sourceFormat: EditorType): Uni
       const cfg = config as OpenCodeConfig;
       for (const [name, server] of Object.entries(cfg.mcp || {})) {
         // Handle command as array (OpenCode uses ["uvx", "perplexica-mcp", "stdio"])
-        const cmdArray = server.command as unknown;
         let command: string | undefined;
         let args: string[] | undefined;
         
-        if (Array.isArray(cmdArray)) {
-          command = cmdArray[0];
-          args = cmdArray.slice(1);
-        } else {
+        if (Array.isArray(server.command)) {
+          command = server.command[0];
+          args = server.command.slice(1);
+        } else if (typeof server.command === 'string') {
           command = server.command;
           args = server.args;
         }
         
         // Handle both "env" and "environment" keys
-        const env = server.env || (server as Record<string, unknown>).environment as Record<string, string> | undefined;
+        const env = server.env || server.environment;
         
         servers.push({
           name,
@@ -78,7 +77,7 @@ export function parseToUniversal(config: unknown, sourceFormat: EditorType): Uni
           env,
           cwd: server.cwd,
           url: server.url,
-          headers: server.http_headers,
+          headers: server.headers,
         });
       }
       break;
@@ -144,16 +143,25 @@ export function convertFromUniversal(universal: UniversalConfig, targetFormat: E
       const result: OpenCodeConfig = { mcp: {} };
       for (const server of universal.servers) {
         const isRemote = server.transport !== 'stdio' || !!server.url;
-        result.mcp[server.name] = {
-          ...(isRemote && { type: 'remote' as const }),
-          ...(!isRemote && server.command && { command: server.command }),
-          ...(server.args?.length && { args: server.args }),
-          ...(server.env && Object.keys(server.env).length && { env: server.env }),
-          ...(server.cwd && { cwd: server.cwd }),
-          ...(server.url && { url: server.url }),
-          ...(server.headers && Object.keys(server.headers).length && { http_headers: server.headers }),
-          enabled: true,
-        };
+        if (isRemote) {
+          result.mcp[server.name] = {
+            type: 'remote' as const,
+            url: server.url,
+            ...(server.headers && Object.keys(server.headers).length && { headers: server.headers }),
+            enabled: true,
+          };
+        } else {
+          // OpenCode uses command as array: ["command", ...args]
+          const commandArray = server.command 
+            ? [server.command, ...(server.args || [])]
+            : undefined;
+          result.mcp[server.name] = {
+            type: 'local' as const,
+            ...(commandArray && { command: commandArray }),
+            ...(server.env && Object.keys(server.env).length && { environment: server.env }),
+            enabled: true,
+          };
+        }
       }
       return result;
     }
