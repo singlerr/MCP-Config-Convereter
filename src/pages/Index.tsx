@@ -88,7 +88,12 @@ const Index = () => {
   const canConvert = sourceFormat && targetFormat && inputConfig.trim();
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="relative flex min-h-screen flex-col overflow-hidden">
+      {/* Background orbs */}
+      <div className="orb orb-1" />
+      <div className="orb orb-2" />
+      <div className="orb orb-3" />
+
       <Header />
 
       <main className="container flex-1 py-8">
@@ -108,7 +113,7 @@ const Index = () => {
               <button
                 onClick={handleSwapFormats}
                 disabled={!sourceFormat || !targetFormat}
-                className="absolute -left-4 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 rounded-full border bg-card p-2 shadow-sm transition-all hover:bg-muted disabled:opacity-50 lg:block"
+                className="absolute -left-4 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 rounded-full glass p-2.5 shadow-glass transition-all hover:scale-110 disabled:opacity-50 lg:block"
                 title="포맷 교환"
               >
                 <ArrowRightLeft className="h-4 w-4" />
@@ -172,14 +177,14 @@ const Index = () => {
           {/* Status & Actions */}
           <div className="flex flex-col items-center gap-4">
             {error && (
-              <div className="flex items-center gap-2 rounded-lg bg-destructive/10 px-4 py-2 text-sm text-destructive">
+              <div className="flex items-center gap-2 glass rounded-xl px-4 py-2.5 text-sm text-destructive">
                 <AlertCircle className="h-4 w-4" />
                 <span>{error}</span>
               </div>
             )}
             
             {serverCount > 0 && !error && (
-              <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm text-primary">
+              <div className="flex items-center gap-2 glass rounded-xl px-4 py-2.5 text-sm text-primary">
                 <CheckCircle2 className="h-4 w-4" />
                 <span>{serverCount}개의 MCP 서버가 변환되었습니다</span>
               </div>
@@ -193,7 +198,7 @@ const Index = () => {
         </div>
       </main>
 
-      <footer className="border-t py-6">
+      <footer className="glass border-t border-white/10 py-6 mt-8">
         <div className="container text-center text-sm text-muted-foreground">
           <p>
             MCP Config Converter — 
