@@ -5,7 +5,11 @@ export type EditorType =
   | 'opencode'
   | 'gemini-cli'
   | 'lmstudio'
-  | 'antigravity';
+  | 'antigravity'
+  | 'roo-code'
+  | 'copilot-cli'
+  | 'continue-dev'
+  | 'codex-cli';
 
 export interface EditorInfo {
   id: EditorType;
@@ -64,6 +68,34 @@ export const editors: EditorInfo[] = [
     description: 'AI 개발 도구',
     configFileName: 'mcp_config.json',
     docsUrl: 'https://antigravity.dev',
+  },
+  {
+    id: 'roo-code',
+    name: 'Roo Code',
+    description: 'AI 코딩 어시스턴트 VS Code 확장',
+    configFileName: '.roo/mcp.json',
+    docsUrl: 'https://docs.roocode.com/features/mcp/using-mcp-in-roo',
+  },
+  {
+    id: 'copilot-cli',
+    name: 'GitHub Copilot CLI',
+    description: 'GitHub Copilot 명령줄 도구',
+    configFileName: 'mcp-config.json',
+    docsUrl: 'https://github.com/github/copilot-cli',
+  },
+  {
+    id: 'continue-dev',
+    name: 'Continue',
+    description: 'AI 코드 어시스턴트 (YAML 형식)',
+    configFileName: '.continue/mcpServers/*.yaml',
+    docsUrl: 'https://docs.continue.dev/customize/deep-dives/mcp',
+  },
+  {
+    id: 'codex-cli',
+    name: 'Codex CLI',
+    description: 'OpenAI Codex CLI (TOML 형식)',
+    configFileName: '~/.codex/config.toml',
+    docsUrl: 'https://openai.com/codex',
   },
 ];
 
@@ -161,6 +193,59 @@ export interface AntigravityConfig {
   mcpServers: Record<string, McpServerBase>;
 }
 
+// Roo Code format
+export interface RooCodeMcpServer extends McpServerBase {
+  cwd?: string;
+  alwaysAllow?: string[];
+  disabled?: boolean;
+}
+
+export interface RooCodeConfig {
+  mcpServers: Record<string, RooCodeMcpServer>;
+}
+
+// GitHub Copilot CLI format (same as VS Code)
+export interface CopilotCliConfig {
+  servers: Record<string, VSCodeMcpServer>;
+  inputs?: Array<{
+    type: string;
+    id: string;
+    description: string;
+    password?: boolean;
+  }>;
+}
+
+// Continue Dev format (YAML-based)
+export interface ContinueMcpServer {
+  name: string;
+  type?: 'stdio' | 'sse' | 'streamable-http';
+  command?: string;
+  args?: string[];
+  env?: Record<string, string>;
+  url?: string;
+}
+
+export interface ContinueDevConfig {
+  name?: string;
+  version?: string;
+  schema?: string;
+  mcpServers: ContinueMcpServer[];
+}
+
+// Codex CLI format (TOML-based)
+export interface CodexMcpServer {
+  command?: string;
+  args?: string[];
+  env?: Record<string, string>;
+  cwd?: string;
+  url?: string;
+  startup_timeout_sec?: number;
+}
+
+export interface CodexCliConfig {
+  mcp_servers: Record<string, CodexMcpServer>;
+}
+
 // Universal intermediate format for conversion
 export interface UniversalMcpServer {
   name: string;
@@ -183,7 +268,12 @@ export function detectFormat(config: unknown): EditorType | null {
   
   const obj = config as Record<string, unknown>;
   
-  // VS Code specific: has "servers" key (not "mcpServers")
+  // Codex CLI specific: has "mcp_servers" key (underscore)
+  if ('mcp_servers' in obj && typeof obj.mcp_servers === 'object') {
+    return 'codex-cli';
+  }
+  
+  // VS Code / Copilot CLI specific: has "servers" key (not "mcpServers")
   if ('servers' in obj && typeof obj.servers === 'object') {
     return 'vscode';
   }
@@ -193,9 +283,13 @@ export function detectFormat(config: unknown): EditorType | null {
     return 'opencode';
   }
   
-  // Most others use "mcpServers"
+  // Continue Dev specific: mcpServers is an array
+  if ('mcpServers' in obj && Array.isArray(obj.mcpServers)) {
+    return 'continue-dev';
+  }
+  
+  // Most others use "mcpServers" as object
   if ('mcpServers' in obj) {
-    // Try to detect specific format based on server properties
     const servers = obj.mcpServers as Record<string, Record<string, unknown>>;
     const firstServer = Object.values(servers)[0];
     
@@ -203,6 +297,10 @@ export function detectFormat(config: unknown): EditorType | null {
       // Gemini-specific fields
       if ('httpUrl' in firstServer || 'trust' in firstServer || 'includeTools' in firstServer) {
         return 'gemini-cli';
+      }
+      // Roo Code specific fields
+      if ('alwaysAllow' in firstServer) {
+        return 'roo-code';
       }
     }
     
