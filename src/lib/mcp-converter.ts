@@ -204,18 +204,62 @@ export function convertFromUniversal(universal: UniversalConfig, targetFormat: E
   }
 }
 
-// Try to fix incomplete JSON (e.g., `"mcp": {...}` without outer braces)
-function normalizeJsonInput(input: string): string {
-  const trimmed = input.trim();
+// Count braces and brackets to detect imbalance
+function countBraces(text: string): { open: number; close: number; openBracket: number; closeBracket: number } {
+  let open = 0, close = 0, openBracket = 0, closeBracket = 0;
+  let inString = false;
+  let escape = false;
   
-  // If it already starts with {, try parsing as-is first
-  if (trimmed.startsWith('{')) {
-    return trimmed;
+  for (const char of text) {
+    if (escape) {
+      escape = false;
+      continue;
+    }
+    if (char === '\\') {
+      escape = true;
+      continue;
+    }
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (!inString) {
+      if (char === '{') open++;
+      else if (char === '}') close++;
+      else if (char === '[') openBracket++;
+      else if (char === ']') closeBracket++;
+    }
   }
   
-  // If it starts with a key like "mcp": or "mcpServers":, wrap it
-  if (trimmed.startsWith('"')) {
-    return `{${trimmed}}`;
+  return { open, close, openBracket, closeBracket };
+}
+
+// Try to repair imbalanced braces
+function repairJson(input: string): string {
+  let trimmed = input.trim();
+  
+  // Remove trailing commas before } or ]
+  trimmed = trimmed.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+  
+  const counts = countBraces(trimmed);
+  
+  // Add missing closing braces
+  const missingClose = counts.open - counts.close;
+  const missingCloseBracket = counts.openBracket - counts.closeBracket;
+  
+  if (missingClose > 0) {
+    trimmed += '}'.repeat(missingClose);
+  }
+  if (missingCloseBracket > 0) {
+    trimmed += ']'.repeat(missingCloseBracket);
+  }
+  
+  // Add missing opening braces (wrap if needed)
+  if (missingClose < 0) {
+    trimmed = '{'.repeat(-missingClose) + trimmed;
+  }
+  if (missingCloseBracket < 0) {
+    trimmed = '['.repeat(-missingCloseBracket) + trimmed;
   }
   
   return trimmed;
@@ -241,18 +285,46 @@ function parseJsonFlexible(input: string): unknown {
     }
   }
   
-  // Strategy 3: Handle case where user pasted inner content
-  // e.g., "mcp": { ... } without outer { }
-  const keyMatch = trimmed.match(/^"(\w+)":\s*\{/);
-  if (keyMatch) {
+  // Strategy 3: Repair imbalanced braces and parse
+  try {
+    const repaired = repairJson(trimmed);
+    return JSON.parse(repaired);
+  } catch {
+    // Continue
+  }
+  
+  // Strategy 4: Wrap with braces and repair
+  if (trimmed.startsWith('"')) {
     try {
-      return JSON.parse(`{${trimmed}}`);
+      const wrapped = `{${trimmed}}`;
+      const repaired = repairJson(wrapped);
+      return JSON.parse(repaired);
     } catch {
       // Continue
     }
   }
   
-  throw new Error('유효하지 않은 JSON 형식입니다. 전체 설정 파일을 복사해서 붙여넣어 주세요.');
+  // Strategy 5: Wrap non-object content
+  const keyMatch = trimmed.match(/^"(\w+)":\s*\{/);
+  if (keyMatch) {
+    try {
+      const wrapped = `{${trimmed}}`;
+      const repaired = repairJson(wrapped);
+      return JSON.parse(repaired);
+    } catch {
+      // Continue
+    }
+  }
+  
+  // Show helpful error with brace count
+  const counts = countBraces(trimmed);
+  const braceInfo = counts.open !== counts.close 
+    ? `{ ${counts.open}개, } ${counts.close}개 - ${Math.abs(counts.open - counts.close)}개가 ${counts.open > counts.close ? '닫히지 않음' : '여는 괄호 부족'}`
+    : '';
+  
+  throw new Error(
+    `유효하지 않은 JSON 형식입니다. ${braceInfo ? `(괄호 불균형: ${braceInfo})` : ''}\n전체 설정 파일을 복사해서 붙여넣어 주세요.`
+  );
 }
 
 export function convertConfig(
