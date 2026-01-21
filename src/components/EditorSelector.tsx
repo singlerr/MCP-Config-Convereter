@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { editors, type EditorType } from '@/lib/mcp-formats';
 import { cn } from '@/lib/utils';
 
@@ -9,6 +10,8 @@ interface EditorSelectorProps {
 }
 
 export function EditorSelector({ value, onChange, label, excludeValue }: EditorSelectorProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-3">
       <label className="text-sm font-medium text-muted-foreground">{label}</label>
@@ -37,10 +40,10 @@ export function EditorSelector({ value, onChange, label, excludeValue }: EditorS
                   isSelected ? 'text-primary' : 'text-foreground'
                 )}
               >
-                {editor.name}
+                {t(`editors.${editor.id}.name`)}
               </span>
               <span className="text-xs text-muted-foreground line-clamp-1">
-                {editor.description}
+                {t(`editors.${editor.id}.description`)}
               </span>
               {isSelected && (
                 <div className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary animate-pulse" />

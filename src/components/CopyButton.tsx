@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Check, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -8,6 +9,7 @@ interface CopyButtonProps {
 }
 
 export function CopyButton({ text, className }: CopyButtonProps) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -34,12 +36,12 @@ export function CopyButton({ text, className }: CopyButtonProps) {
       {copied ? (
         <>
           <Check className="h-4 w-4 text-primary" />
-          <span>복사됨!</span>
+          <span>{t('output.copied')}</span>
         </>
       ) : (
         <>
           <Copy className="h-4 w-4" />
-          <span>복사</span>
+          <span>{t('output.copy')}</span>
         </>
       )}
     </button>

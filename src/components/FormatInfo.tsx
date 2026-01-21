@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { editors, type EditorType } from '@/lib/mcp-formats';
 import { FileJson, ExternalLink } from 'lucide-react';
 
@@ -6,7 +7,9 @@ interface FormatInfoProps {
   type: 'source' | 'target';
 }
 
-export function FormatInfo({ editorId, type }: FormatInfoProps) {
+export function FormatInfo({ editorId }: FormatInfoProps) {
+  const { t } = useTranslation();
+
   if (!editorId) return null;
 
   const editor = editors.find((e) => e.id === editorId);
@@ -22,7 +25,7 @@ export function FormatInfo({ editorId, type }: FormatInfoProps) {
         rel="noopener noreferrer"
         className="inline-flex items-center gap-1 text-primary hover:underline"
       >
-        문서 <ExternalLink className="h-3 w-3" />
+        {t('formatInfo.learnMore')} <ExternalLink className="h-3 w-3" />
       </a>
     </div>
   );

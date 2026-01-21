@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Header } from '@/components/Header';
 import { EditorSelector } from '@/components/EditorSelector';
 import { CodeEditor } from '@/components/CodeEditor';
@@ -12,6 +13,7 @@ import { AlertCircle, CheckCircle2, ArrowRightLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Index = () => {
+  const { t } = useTranslation();
   const [sourceFormat, setSourceFormat] = useState<EditorType | null>(null);
   const [targetFormat, setTargetFormat] = useState<EditorType | null>(null);
   const [inputConfig, setInputConfig] = useState('');
@@ -45,18 +47,18 @@ const Index = () => {
           const detected = detectFormat(parsed);
           if (detected && !sourceFormat) {
             setSourceFormat(detected);
-            toast.info(`${detected} 포맷이 감지되었습니다`);
+            toast.info(t('formatDetected', { format: detected }));
           }
         }
       } catch {
         // Invalid JSON, will show error on convert
       }
     }
-  }, [sourceFormat]);
+  }, [sourceFormat, t]);
 
   const handleConvert = useCallback(() => {
     if (!sourceFormat || !targetFormat || !inputConfig.trim()) {
-      setError('소스/타겟 포맷을 선택하고 설정을 입력해주세요');
+      setError(t('convert.error.selectFormats'));
       return;
     }
 
@@ -66,13 +68,13 @@ const Index = () => {
       setOutputConfig(result.output);
       setError(null);
       setServerCount(result.serverCount);
-      toast.success('변환이 완료되었습니다!');
+      toast.success(t('convert.success'));
     } else {
       setError(result.error);
       setOutputConfig('');
       setServerCount(0);
     }
-  }, [sourceFormat, targetFormat, inputConfig]);
+  }, [sourceFormat, targetFormat, inputConfig, t]);
 
   const handleSwapFormats = useCallback(() => {
     if (sourceFormat && targetFormat) {
@@ -104,7 +106,7 @@ const Index = () => {
               <EditorSelector
                 value={sourceFormat}
                 onChange={setSourceFormat}
-                label="소스 포맷"
+                label={t('editor.sourceFormat')}
                 excludeValue={targetFormat}
               />
             </div>
@@ -114,14 +116,14 @@ const Index = () => {
                 onClick={handleSwapFormats}
                 disabled={!sourceFormat || !targetFormat}
                 className="absolute -left-4 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 rounded-full glass p-2.5 shadow-glass transition-all hover:scale-110 disabled:opacity-50 lg:block"
-                title="포맷 교환"
+                title={t('editor.swapFormats')}
               >
                 <ArrowRightLeft className="h-4 w-4" />
               </button>
               <EditorSelector
                 value={targetFormat}
                 onChange={setTargetFormat}
-                label="타겟 포맷"
+                label={t('editor.targetFormat')}
                 excludeValue={sourceFormat}
               />
             </div>
@@ -133,7 +135,7 @@ const Index = () => {
             <div className="editor-panel animate-slide-up">
               <div className="flex items-center justify-between border-b px-4 py-3">
                 <div className="space-y-1">
-                  <h3 className="font-medium">입력</h3>
+                  <h3 className="font-medium">{t('input.title')}</h3>
                   <FormatInfo editorId={sourceFormat} type="source" />
                 </div>
                 <ExampleConfigs editorId={sourceFormat} onSelect={setInputConfig} />
@@ -141,19 +143,7 @@ const Index = () => {
               <CodeEditor
                 value={inputConfig}
                 onChange={handleInputChange}
-                placeholder={`전체 설정 파일 내용을 붙여넣으세요.
-
-예시 (Claude Desktop):
-{
-  "mcpServers": {
-    "server-name": {
-      "command": "npx",
-      "args": ["-y", "package-name"]
-    }
-  }
-}
-
-💡 팁: 설정 파일 전체를 복사해서 붙여넣으면 자동으로 포맷이 감지됩니다.`}
+                placeholder={t('input.placeholder')}
               />
             </div>
 
@@ -161,7 +151,7 @@ const Index = () => {
             <div className="editor-panel animate-slide-up" style={{ animationDelay: '0.15s' }}>
               <div className="flex items-center justify-between border-b px-4 py-3">
                 <div className="space-y-1">
-                  <h3 className="font-medium">출력</h3>
+                  <h3 className="font-medium">{t('output.title')}</h3>
                   <FormatInfo editorId={targetFormat} type="target" />
                 </div>
                 <CopyButton text={outputConfig} />
@@ -169,7 +159,7 @@ const Index = () => {
               <CodeEditor
                 value={outputConfig}
                 readOnly
-                placeholder="변환된 설정이 여기에 표시됩니다..."
+                placeholder={t('output.placeholder')}
               />
             </div>
           </div>
@@ -186,7 +176,7 @@ const Index = () => {
             {serverCount > 0 && !error && (
               <div className="flex items-center gap-2 glass rounded-xl px-4 py-2.5 text-sm text-primary">
                 <CheckCircle2 className="h-4 w-4" />
-                <span>{serverCount}개의 MCP 서버가 변환되었습니다</span>
+                <span>{t('convert.serversConverted', { count: serverCount })}</span>
               </div>
             )}
 
@@ -210,7 +200,7 @@ const Index = () => {
             >
               {' '}Model Context Protocol
             </a>
-            {' '}설정을 다양한 에디터 포맷으로 변환합니다
+            {' '}{t('footer.description')}
           </p>
         </div>
       </footer>
