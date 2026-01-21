@@ -76,9 +76,20 @@ export interface McpServerBase {
   headers?: Record<string, string>;
 }
 
+// Cursor-specific server with additional options
+export interface CursorMcpServer extends McpServerBase {
+  disabled?: boolean;
+  autoApprove?: string[];
+}
+
 // Claude Desktop format
 export interface ClaudeDesktopConfig {
   mcpServers: Record<string, McpServerBase>;
+}
+
+// Cursor format
+export interface CursorConfig {
+  mcpServers: Record<string, CursorMcpServer>;
 }
 
 // VS Code format

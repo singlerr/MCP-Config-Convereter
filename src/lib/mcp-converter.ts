@@ -3,6 +3,7 @@ import type {
   UniversalConfig,
   UniversalMcpServer,
   ClaudeDesktopConfig,
+  CursorConfig,
   VSCodeConfig,
   OpenCodeConfig,
   GeminiCliConfig,
@@ -17,9 +18,24 @@ export function parseToUniversal(config: unknown, sourceFormat: EditorType): Uni
   switch (sourceFormat) {
     case 'claude-desktop':
     case 'lmstudio':
-    case 'antigravity':
-    case 'cursor': {
+    case 'antigravity': {
       const cfg = config as ClaudeDesktopConfig | LMStudioConfig | AntigravityConfig;
+      for (const [name, server] of Object.entries(cfg.mcpServers || {})) {
+        servers.push({
+          name,
+          transport: server.url ? 'http' : 'stdio',
+          command: server.command,
+          args: server.args,
+          env: server.env,
+          url: server.url,
+          headers: server.headers,
+        });
+      }
+      break;
+    }
+
+    case 'cursor': {
+      const cfg = config as CursorConfig;
       for (const [name, server] of Object.entries(cfg.mcpServers || {})) {
         servers.push({
           name,
@@ -108,9 +124,22 @@ export function parseToUniversal(config: unknown, sourceFormat: EditorType): Uni
 // Convert universal format to target format
 export function convertFromUniversal(universal: UniversalConfig, targetFormat: EditorType): unknown {
   switch (targetFormat) {
-    case 'claude-desktop':
-    case 'cursor': {
+    case 'claude-desktop': {
       const result: ClaudeDesktopConfig = { mcpServers: {} };
+      for (const server of universal.servers) {
+        result.mcpServers[server.name] = {
+          ...(server.command && { command: server.command }),
+          ...(server.args?.length && { args: server.args }),
+          ...(server.env && Object.keys(server.env).length && { env: server.env }),
+          ...(server.url && { url: server.url }),
+          ...(server.headers && Object.keys(server.headers).length && { headers: server.headers }),
+        };
+      }
+      return result;
+    }
+
+    case 'cursor': {
+      const result: CursorConfig = { mcpServers: {} };
       for (const server of universal.servers) {
         result.mcpServers[server.name] = {
           ...(server.command && { command: server.command }),
