@@ -13,11 +13,11 @@ export function ConvertButton({ onClick, disabled, loading }: ConvertButtonProps
       onClick={onClick}
       disabled={disabled || loading}
       className={cn(
-        'group relative flex items-center justify-center gap-2 rounded-lg px-6 py-3 font-medium transition-all duration-300',
-        'bg-primary text-primary-foreground',
-        'hover:shadow-glow hover:scale-[1.02]',
+        'group relative flex items-center justify-center gap-2 rounded-xl px-8 py-3.5 font-medium transition-all duration-300',
+        'bg-gradient-to-r from-primary to-accent text-primary-foreground',
+        'shadow-glass hover:shadow-glow hover:scale-[1.03]',
         'active:scale-[0.98]',
-        'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none'
+        'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-glass'
       )}
     >
       {loading ? (

@@ -23,10 +23,11 @@ export function EditorSelector({ value, onChange, label, excludeValue }: EditorS
               onClick={() => !isDisabled && onChange(editor.id)}
               disabled={isDisabled}
               className={cn(
-                'group relative flex flex-col items-start gap-1 rounded-lg border p-3 text-left transition-all duration-200',
+                'group relative flex flex-col items-start gap-1 rounded-xl p-3 text-left transition-all duration-300',
+                'glass',
                 isSelected
-                  ? 'border-primary bg-primary/5 shadow-sm'
-                  : 'border-border bg-card hover:border-primary/50 hover:bg-muted/50',
+                  ? 'border-primary/50 shadow-glow ring-1 ring-primary/30'
+                  : 'hover:border-primary/30 hover:shadow-glass',
                 isDisabled && 'cursor-not-allowed opacity-40'
               )}
             >
@@ -42,7 +43,7 @@ export function EditorSelector({ value, onChange, label, excludeValue }: EditorS
                 {editor.description}
               </span>
               {isSelected && (
-                <div className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary" />
+                <div className="absolute right-2 top-2 h-2 w-2 rounded-full bg-primary animate-pulse" />
               )}
             </button>
           );
