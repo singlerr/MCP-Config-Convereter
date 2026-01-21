@@ -48,7 +48,7 @@ export function CodeEditor({
   );
 
   return (
-    <div className={cn('relative h-full min-h-[300px]', className)}>
+    <div className={cn('relative h-[400px] min-h-[300px] max-h-[600px]', className)}>
       <textarea
         ref={textareaRef}
         value={value}
@@ -58,7 +58,7 @@ export function CodeEditor({
         placeholder={placeholder}
         spellCheck={false}
         className={cn(
-          'code-editor h-full w-full resize-none bg-transparent p-4 outline-none',
+          'code-editor h-full w-full resize-none bg-transparent p-4 outline-none overflow-auto',
           'placeholder:text-muted-foreground/50',
           readOnly && 'cursor-default'
         )}
