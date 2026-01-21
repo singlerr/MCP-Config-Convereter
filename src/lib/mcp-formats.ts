@@ -105,18 +105,16 @@ export interface VSCodeConfig {
 
 // OpenCode format (supports both TOML and JSON)
 export interface OpenCodeMcpServer {
-  type?: 'stdio' | 'remote';
-  command?: string;
+  type?: 'local' | 'remote';
+  command?: string | string[];  // Can be array like ["uvx", "server-name"]
   args?: string[];
   env?: Record<string, string>;
-  env_vars?: string[];
+  environment?: Record<string, string>;  // Alternative to env
   cwd?: string;
   url?: string;
-  bearer_token_env_var?: string;
-  http_headers?: Record<string, string>;
+  headers?: Record<string, string>;
   enabled?: boolean;
-  startup_timeout?: number;
-  tool_timeout?: number;
+  debug?: boolean;
 }
 
 export interface OpenCodeConfig {
