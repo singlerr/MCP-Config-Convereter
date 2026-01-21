@@ -8,7 +8,7 @@ import { CopyButton } from '@/components/CopyButton';
 import { FormatInfo } from '@/components/FormatInfo';
 import { ExampleConfigs } from '@/components/ExampleConfigs';
 import { convertConfig } from '@/lib/mcp-converter';
-import { detectFormat, type EditorType } from '@/lib/mcp-formats';
+import { detectFormat, type EditorType, editors } from '@/lib/mcp-formats';
 import { AlertCircle, CheckCircle2, ArrowRightLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -20,6 +20,17 @@ const Index = () => {
   const [outputConfig, setOutputConfig] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [serverCount, setServerCount] = useState<number>(0);
+
+  const selectedSourceEditor = sourceFormat
+    ? editors.find(e => e.id === sourceFormat)
+    : editors.find(e => e.id === 'claude-desktop');
+
+  const inputPlaceholder = selectedSourceEditor
+    ? t('input.placeholder', {
+      format: selectedSourceEditor.name,
+      example: selectedSourceEditor.exampleConfig
+    })
+    : '';
 
   const handleInputChange = useCallback((value: string) => {
     setInputConfig(value);
@@ -33,7 +44,7 @@ const Index = () => {
         // Try normal parse first
         let parsed: unknown;
         const trimmed = value.trim();
-        
+
         try {
           parsed = JSON.parse(trimmed);
         } catch {
@@ -42,7 +53,7 @@ const Index = () => {
             parsed = JSON.parse(`{${trimmed}}`);
           }
         }
-        
+
         if (parsed) {
           const detected = detectFormat(parsed);
           if (detected && !sourceFormat) {
@@ -110,7 +121,7 @@ const Index = () => {
                 excludeValue={targetFormat}
               />
             </div>
-            
+
             <div className="relative space-y-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
               <button
                 onClick={handleSwapFormats}
@@ -143,7 +154,7 @@ const Index = () => {
               <CodeEditor
                 value={inputConfig}
                 onChange={handleInputChange}
-                placeholder={t('input.placeholder')}
+                placeholder={inputPlaceholder}
               />
             </div>
 
@@ -172,7 +183,7 @@ const Index = () => {
                 <span>{error}</span>
               </div>
             )}
-            
+
             {serverCount > 0 && !error && (
               <div className="flex items-center gap-2 glass rounded-xl px-4 py-2.5 text-sm text-primary">
                 <CheckCircle2 className="h-4 w-4" />
@@ -191,7 +202,7 @@ const Index = () => {
       <footer className="glass border-t border-white/10 py-6 mt-8">
         <div className="container text-center text-sm text-muted-foreground">
           <p>
-            MCP Config Converter — 
+            MCP Config Converter —
             <a
               href="https://modelcontextprotocol.io"
               target="_blank"

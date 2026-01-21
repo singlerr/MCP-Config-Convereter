@@ -37,11 +37,27 @@
     "antigravity": {
       "name": "Antigravity",
       "description": "AI 개발 도구"
+    },
+    "roo-code": {
+      "name": "Roo Code",
+      "description": "AI 코딩 어시스턴트 VS Code 확장"
+    },
+    "copilot-cli": {
+      "name": "GitHub Copilot CLI",
+      "description": "GitHub Copilot 명령줄 도구"
+    },
+    "continue-dev": {
+      "name": "Continue",
+      "description": "AI 코드 어시스턴트 (YAML 형식)"
+    },
+    "codex-cli": {
+      "name": "Codex CLI",
+      "description": "OpenAI Codex CLI (TOML 형식)"
     }
   },
   "input": {
     "title": "입력",
-    "placeholder": "전체 설정 파일 내용을 붙여넣으세요.\n\n예시 (Claude Desktop):\n{\n  \"mcpServers\": {\n    \"server-name\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"package-name\"]\n    }\n  }\n}\n\n💡 팁: 설정 파일 전체를 복사해서 붙여넣으면 자동으로 포맷이 감지됩니다.",
+    "placeholder": "전체 설정 파일 내용을 붙여넣으세요.\n\n예시 ({{format}}):\n{{example}}\n\n💡 팁: 설정 파일 전체를 복사해서 붙여넣으면 자동으로 포맷이 감지됩니다.",
     "loadExample": "예제 설정 불러오기"
   },
   "output": {

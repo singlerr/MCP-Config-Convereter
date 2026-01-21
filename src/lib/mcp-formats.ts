@@ -1,4 +1,4 @@
-export type EditorType = 
+export type EditorType =
   | 'claude-desktop'
   | 'vscode'
   | 'cursor'
@@ -17,6 +17,7 @@ export interface EditorInfo {
   description: string;
   configFileName: string;
   docsUrl: string;
+  exampleConfig: string;
 }
 
 export const editors: EditorInfo[] = [
@@ -26,6 +27,14 @@ export const editors: EditorInfo[] = [
     description: 'Anthropic의 Claude 데스크톱 앱',
     configFileName: 'claude_desktop_config.json',
     docsUrl: 'https://modelcontextprotocol.io/quickstart/user',
+    exampleConfig: `{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    }
+  }
+}`,
   },
   {
     id: 'vscode',
@@ -33,6 +42,14 @@ export const editors: EditorInfo[] = [
     description: 'GitHub Copilot MCP 지원',
     configFileName: '.vscode/mcp.json',
     docsUrl: 'https://code.visualstudio.com/docs/copilot/chat/mcp-servers',
+    exampleConfig: `{
+  "servers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    }
+  }
+}`,
   },
   {
     id: 'cursor',
@@ -40,6 +57,16 @@ export const editors: EditorInfo[] = [
     description: 'AI-first 코드 에디터',
     configFileName: '.cursor/mcp.json',
     docsUrl: 'https://docs.cursor.com/context/model-context-protocol',
+    exampleConfig: `{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}`,
   },
   {
     id: 'opencode',
@@ -47,6 +74,15 @@ export const editors: EditorInfo[] = [
     description: '터미널 AI 코딩 에이전트',
     configFileName: 'opencode.json',
     docsUrl: 'https://opencode.ai/docs/mcp',
+    exampleConfig: `{
+  "mcp": {
+    "filesystem": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
+      "enabled": true
+    }
+  }
+}`,
   },
   {
     id: 'gemini-cli',
@@ -54,6 +90,15 @@ export const editors: EditorInfo[] = [
     description: 'Google Gemini CLI 도구',
     configFileName: 'settings.json',
     docsUrl: 'https://github.com/google-gemini/gemini-cli',
+    exampleConfig: `{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
+      "timeout": 30000
+    }
+  }
+}`,
   },
   {
     id: 'lmstudio',
@@ -61,6 +106,14 @@ export const editors: EditorInfo[] = [
     description: '로컬 LLM 실행 앱',
     configFileName: 'mcp.json',
     docsUrl: 'https://lmstudio.ai/docs/mcp',
+    exampleConfig: `{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    }
+  }
+}`,
   },
   {
     id: 'antigravity',
@@ -68,6 +121,14 @@ export const editors: EditorInfo[] = [
     description: 'AI 개발 도구',
     configFileName: 'mcp_config.json',
     docsUrl: 'https://antigravity.dev',
+    exampleConfig: `{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    }
+  }
+}`,
   },
   {
     id: 'roo-code',
@@ -75,6 +136,16 @@ export const editors: EditorInfo[] = [
     description: 'AI 코딩 어시스턴트 VS Code 확장',
     configFileName: '.roo/mcp.json',
     docsUrl: 'https://docs.roocode.com/features/mcp/using-mcp-in-roo',
+    exampleConfig: `{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
+      "alwaysAllow": [],
+      "disabled": false
+    }
+  }
+}`,
   },
   {
     id: 'copilot-cli',
@@ -82,6 +153,14 @@ export const editors: EditorInfo[] = [
     description: 'GitHub Copilot 명령줄 도구',
     configFileName: 'mcp-config.json',
     docsUrl: 'https://github.com/github/copilot-cli',
+    exampleConfig: `{
+  "servers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    }
+  }
+}`,
   },
   {
     id: 'continue-dev',
@@ -89,6 +168,16 @@ export const editors: EditorInfo[] = [
     description: 'AI 코드 어시스턴트 (YAML 형식)',
     configFileName: '.continue/mcpServers/*.yaml',
     docsUrl: 'https://docs.continue.dev/customize/deep-dives/mcp',
+    exampleConfig: `name: Filesystem MCP
+version: 0.0.1
+mcpServers:
+  - name: filesystem
+    type: stdio
+    command: npx
+    args:
+      - -y
+      - "@modelcontextprotocol/server-filesystem"
+      - /path/to/files`,
   },
   {
     id: 'codex-cli',
@@ -96,6 +185,9 @@ export const editors: EditorInfo[] = [
     description: 'OpenAI Codex CLI (TOML 형식)',
     configFileName: '~/.codex/config.toml',
     docsUrl: 'https://openai.com/codex',
+    exampleConfig: `[mcp_servers.filesystem]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]`,
   },
 ];
 
@@ -265,34 +357,34 @@ export interface UniversalConfig {
 
 export function detectFormat(config: unknown): EditorType | null {
   if (typeof config !== 'object' || config === null) return null;
-  
+
   const obj = config as Record<string, unknown>;
-  
+
   // Codex CLI specific: has "mcp_servers" key (underscore)
   if ('mcp_servers' in obj && typeof obj.mcp_servers === 'object') {
     return 'codex-cli';
   }
-  
+
   // VS Code / Copilot CLI specific: has "servers" key (not "mcpServers")
   if ('servers' in obj && typeof obj.servers === 'object') {
     return 'vscode';
   }
-  
+
   // OpenCode specific: has "mcp" key
   if ('mcp' in obj && typeof obj.mcp === 'object') {
     return 'opencode';
   }
-  
+
   // Continue Dev specific: mcpServers is an array
   if ('mcpServers' in obj && Array.isArray(obj.mcpServers)) {
     return 'continue-dev';
   }
-  
+
   // Most others use "mcpServers" as object
   if ('mcpServers' in obj) {
     const servers = obj.mcpServers as Record<string, Record<string, unknown>>;
     const firstServer = Object.values(servers)[0];
-    
+
     if (firstServer) {
       // Gemini-specific fields
       if ('httpUrl' in firstServer || 'trust' in firstServer || 'includeTools' in firstServer) {
@@ -303,10 +395,10 @@ export function detectFormat(config: unknown): EditorType | null {
         return 'roo-code';
       }
     }
-    
+
     // Default to claude-desktop as it's the most common
     return 'claude-desktop';
   }
-  
+
   return null;
 }

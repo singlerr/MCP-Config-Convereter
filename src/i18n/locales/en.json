@@ -37,11 +37,27 @@
     "antigravity": {
       "name": "Antigravity",
       "description": "AI development tool"
+    },
+    "roo-code": {
+      "name": "Roo Code",
+      "description": "AI Coding Assistant VS Code extension"
+    },
+    "copilot-cli": {
+      "name": "GitHub Copilot CLI",
+      "description": "GitHub Copilot Command Line Interface"
+    },
+    "continue-dev": {
+      "name": "Continue",
+      "description": "AI code assistant (YAML format)"
+    },
+    "codex-cli": {
+      "name": "Codex CLI",
+      "description": "OpenAI Codex CLI (TOML format)"
     }
   },
   "input": {
     "title": "Input",
-    "placeholder": "Paste the full config file content here.\n\nExample (Claude Desktop):\n{\n  \"mcpServers\": {\n    \"server-name\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"package-name\"]\n    }\n  }\n}\n\n💡 Tip: Paste the entire config file and the format will be auto-detected.",
+    "placeholder": "Paste the full config file content here.\n\nExample ({{format}}):\n{{example}}\n\n💡 Tip: Paste the entire config file and the format will be auto-detected.",
     "loadExample": "Load example config"
   },
   "output": {
