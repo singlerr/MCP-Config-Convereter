@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { EditorType } from '@/lib/mcp-formats';
 
 interface ExampleConfigsProps {
@@ -111,6 +112,8 @@ const examples: Record<EditorType, string> = {
 };
 
 export function ExampleConfigs({ editorId, onSelect }: ExampleConfigsProps) {
+  const { t } = useTranslation();
+
   if (!editorId) return null;
 
   const example = examples[editorId];
@@ -121,7 +124,7 @@ export function ExampleConfigs({ editorId, onSelect }: ExampleConfigsProps) {
       onClick={() => onSelect(example)}
       className="text-xs text-primary hover:underline"
     >
-      예제 설정 불러오기
+      {t('input.loadExample')}
     </button>
   );
 }

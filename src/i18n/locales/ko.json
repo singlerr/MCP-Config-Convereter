@@ -1,0 +1,72 @@
+{
+  "header": {
+    "title": "MCP Config Converter",
+    "subtitle": "다양한 에디터의 MCP 설정을 쉽게 변환하세요",
+    "docs": "MCP 문서 →"
+  },
+  "editor": {
+    "sourceFormat": "소스 포맷",
+    "targetFormat": "타겟 포맷",
+    "swapFormats": "포맷 교환"
+  },
+  "editors": {
+    "claude-desktop": {
+      "name": "Claude Desktop",
+      "description": "Anthropic의 Claude 데스크톱 앱"
+    },
+    "vscode": {
+      "name": "VS Code",
+      "description": "GitHub Copilot MCP 지원"
+    },
+    "cursor": {
+      "name": "Cursor",
+      "description": "AI-first 코드 에디터"
+    },
+    "opencode": {
+      "name": "OpenCode",
+      "description": "터미널 AI 코딩 에이전트"
+    },
+    "gemini-cli": {
+      "name": "Gemini CLI",
+      "description": "Google Gemini CLI 도구"
+    },
+    "lmstudio": {
+      "name": "LM Studio",
+      "description": "로컬 LLM 실행 앱"
+    },
+    "antigravity": {
+      "name": "Antigravity",
+      "description": "AI 개발 도구"
+    }
+  },
+  "input": {
+    "title": "입력",
+    "placeholder": "전체 설정 파일 내용을 붙여넣으세요.\n\n예시 (Claude Desktop):\n{\n  \"mcpServers\": {\n    \"server-name\": {\n      \"command\": \"npx\",\n      \"args\": [\"-y\", \"package-name\"]\n    }\n  }\n}\n\n💡 팁: 설정 파일 전체를 복사해서 붙여넣으면 자동으로 포맷이 감지됩니다.",
+    "loadExample": "예제 설정 불러오기"
+  },
+  "output": {
+    "title": "출력",
+    "placeholder": "변환된 설정이 여기에 표시됩니다...",
+    "copy": "복사",
+    "copied": "복사됨!"
+  },
+  "convert": {
+    "button": "변환하기",
+    "converting": "변환 중...",
+    "success": "변환이 완료되었습니다!",
+    "serversConverted": "{{count}}개의 MCP 서버가 변환되었습니다",
+    "error": {
+      "selectFormats": "소스/타겟 포맷을 선택하고 설정을 입력해주세요",
+      "noServers": "변환할 MCP 서버를 찾을 수 없습니다. 올바른 형식인지 확인해 주세요.",
+      "invalidJson": "유효하지 않은 JSON 형식입니다. 전체 설정 파일을 복사해서 붙여넣어 주세요."
+    }
+  },
+  "formatInfo": {
+    "configFile": "설정 파일:",
+    "learnMore": "자세히 보기"
+  },
+  "footer": {
+    "description": "Model Context Protocol 설정을 다양한 에디터 포맷으로 변환합니다"
+  },
+  "formatDetected": "{{format}} 포맷이 감지되었습니다"
+}

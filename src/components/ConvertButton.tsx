@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -8,6 +9,8 @@ interface ConvertButtonProps {
 }
 
 export function ConvertButton({ onClick, disabled, loading }: ConvertButtonProps) {
+  const { t } = useTranslation();
+
   return (
     <button
       onClick={onClick}
@@ -23,11 +26,11 @@ export function ConvertButton({ onClick, disabled, loading }: ConvertButtonProps
       {loading ? (
         <>
           <Loader2 className="h-5 w-5 animate-spin" />
-          <span>변환 중...</span>
+          <span>{t('convert.converting')}</span>
         </>
       ) : (
         <>
-          <span>변환하기</span>
+          <span>{t('convert.button')}</span>
           <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
         </>
       )}
