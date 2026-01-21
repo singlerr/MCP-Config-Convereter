@@ -136,7 +136,19 @@ const Index = () => {
               <CodeEditor
                 value={inputConfig}
                 onChange={handleInputChange}
-                placeholder="여기에 MCP 설정을 붙여넣으세요..."
+                placeholder={`전체 설정 파일 내용을 붙여넣으세요.
+
+예시 (Claude Desktop):
+{
+  "mcpServers": {
+    "server-name": {
+      "command": "npx",
+      "args": ["-y", "package-name"]
+    }
+  }
+}
+
+💡 팁: 설정 파일 전체를 복사해서 붙여넣으면 자동으로 포맷이 감지됩니다.`}
               />
             </div>
 
