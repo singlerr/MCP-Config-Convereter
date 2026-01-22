@@ -1,11 +1,34 @@
 {
   "name": "mcp-config-converter",
-  "private": true,
+  "private": false,
   "version": "1.0.0",
+  "description": "Convert MCP configurations between different AI code editors",
+  "author": "singlerr",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/singlerr/MCP-Config-Convereter.git"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "cli",
+    "converter",
+    "config",
+    "ai",
+    "developer-tools"
+  ],
   "type": "module",
+  "main": "./dist/cli/index.js",
   "bin": {
     "mcpconv": "./dist/cli/index.js"
   },
+  "files": [
+    "dist/cli",
+    "src",
+    "cli",
+    "README.md"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
