@@ -48,6 +48,18 @@
 - 📱 **Responsive** - Works on desktop and mobile devices
 - ⚡ **Fast & Offline** - All conversions happen in your browser
 
+## Screenshots
+
+<p align="center">
+  <strong>English</strong><br/>
+  <img src="docs/screenshots/ui_english.png" alt="MCP Config Converter - English UI" width="800" />
+</p>
+
+<p align="center">
+  <strong>한국어</strong><br/>
+  <img src="docs/screenshots/ui_korean.png" alt="MCP Config Converter - Korean UI" width="800" />
+</p>
+
 ## Quick Start
 
 ### Option 1: Use Online
