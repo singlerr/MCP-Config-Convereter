@@ -76,6 +76,57 @@ npm run dev
 4. **Convert** - Click the "Convert" button
 5. **Copy Result** - Copy the converted config and use it in your target editor
 
+
+## CLI Tool
+
+The project includes a CLI tool `mcpconv` to automatically sync configurations between editors.
+
+### Installation
+
+```bash
+# Install globally
+npm install -g mcp-config-converter
+
+# Or run directly with npx
+npx mcp-config-converter [command]
+```
+
+### Commands
+
+#### `sync`
+Detects an MCP config file in the current directory and syncs it to installed editors.
+
+```bash
+# Sync to all installed editors
+mcpconv sync
+
+# Sync to specific editors
+mcpconv sync --target claude-desktop,cursor
+
+# Dry run (preview changes)
+mcpconv sync --dry-run
+```
+
+**Options:**
+- `-t, --target <editors...>`: Target specific editors (comma-separated)
+- `-d, --dry-run`: Show what would be done without making changes
+- `-v, --verbose`: Show detailed output
+- `-f, --force`: Overwrite without confirmation
+
+#### `list`
+List all installed editors detected on your system and their config file paths.
+
+```bash
+mcpconv list
+```
+
+#### `editors`
+List all supported editors and their default configuration paths.
+
+```bash
+mcpconv editors
+```
+
 ## Example
 
 ### Claude Desktop → VS Code
