@@ -109,6 +109,14 @@ const examples: Record<EditorType, string> = {
     }
   }
 }`,
+  junie: `{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    }
+  }
+}`,
 };
 
 export function ExampleConfigs({ editorId, onSelect }: ExampleConfigsProps) {

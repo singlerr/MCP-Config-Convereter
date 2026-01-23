@@ -6,6 +6,7 @@ export type EditorType =
   | 'gemini-cli'
   | 'lmstudio'
   | 'antigravity'
+  | 'junie'
   | 'roo-code'
   | 'copilot-cli'
   | 'continue-dev'
@@ -121,6 +122,29 @@ export const editors: EditorInfo[] = [
     description: 'AI 개발 도구',
     configFileName: 'mcp_config.json',
     docsUrl: 'https://antigravity.dev',
+    exampleConfig: `{
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "qdrant": {
+      "command": "uvx",
+      "args": ["mcp-server-qdrant"],
+      "env": {
+        "QDRANT_URL": "http://localhost:6333",
+        "COLLECTION_NAME": "my-collection"
+      }
+    }
+  }
+}`,
+  },
+  {
+    id: 'junie',
+    name: 'JetBrains Junie / AI Assistant',
+    description: 'JetBrains IDE AI Assistant',
+    configFileName: '.junie/mcp/mcp.json',
+    docsUrl: 'https://www.jetbrains.com/help/idea/ai-assistant.html',
     exampleConfig: `{
   "mcpServers": {
     "filesystem": {
@@ -262,7 +286,7 @@ export interface GeminiMcpServer {
   args?: string[];
   env?: Record<string, string>;
   cwd?: string;
-  serverUrl?: string;
+  url?: string;
   httpUrl?: string;
   headers?: Record<string, string>;
   timeout?: number;
@@ -291,6 +315,11 @@ export interface AntigravityMcpServer {
 
 export interface AntigravityConfig {
   mcpServers: Record<string, AntigravityMcpServer>;
+}
+
+// JetBrains Junie format
+export interface JunieConfig {
+  mcpServers: Record<string, McpServerBase>;
 }
 
 // Roo Code format

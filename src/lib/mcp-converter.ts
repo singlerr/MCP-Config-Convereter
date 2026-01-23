@@ -9,6 +9,7 @@ import type {
   GeminiCliConfig,
   LMStudioConfig,
   AntigravityConfig,
+  JunieConfig,
   RooCodeConfig,
   CopilotCliConfig,
   ContinueDevConfig,
@@ -23,8 +24,9 @@ export function parseToUniversal(config: unknown, sourceFormat: EditorType): Uni
 
   switch (sourceFormat) {
     case 'claude-desktop':
-    case 'lmstudio': {
-      const cfg = config as ClaudeDesktopConfig | LMStudioConfig;
+    case 'lmstudio':
+    case 'junie': {
+      const cfg = config as ClaudeDesktopConfig | LMStudioConfig | JunieConfig;
       for (const [name, server] of Object.entries(cfg.mcpServers || {})) {
         servers.push({
           name,
@@ -125,12 +127,12 @@ export function parseToUniversal(config: unknown, sourceFormat: EditorType): Uni
       for (const [name, server] of Object.entries(cfg.mcpServers || {})) {
         servers.push({
           name,
-          transport: server.serverUrl || server.httpUrl ? 'http' : 'stdio',
+          transport: server.url || server.httpUrl ? 'http' : 'stdio',
           command: server.command,
           args: server.args,
           env: server.env,
           cwd: server.cwd,
-          url: server.serverUrl || server.httpUrl,
+          url: server.url || server.httpUrl,
           headers: server.headers,
           timeout: server.timeout,
         });
@@ -289,7 +291,7 @@ export function convertFromUniversal(universal: UniversalConfig, targetFormat: E
           ...(server.args?.length && { args: server.args }),
           ...(server.env && Object.keys(server.env).length && { env: server.env }),
           ...(server.cwd && { cwd: server.cwd }),
-          ...(server.url && { serverUrl: server.url }),
+          ...(server.url && { url: server.url }),
           ...(server.headers && Object.keys(server.headers).length && { headers: server.headers }),
           ...(server.timeout && { timeout: server.timeout }),
         };
@@ -319,6 +321,20 @@ export function convertFromUniversal(universal: UniversalConfig, targetFormat: E
           ...(server.args?.length && { args: server.args }),
           ...(server.env && Object.keys(server.env).length && { env: server.env }),
           ...(server.url && { serverUrl: server.url }),
+          ...(server.headers && Object.keys(server.headers).length && { headers: server.headers }),
+        };
+      }
+      return result;
+    }
+
+    case 'junie': {
+      const result: JunieConfig = { mcpServers: {} };
+      for (const server of universal.servers) {
+        result.mcpServers[server.name] = {
+          ...(server.command && { command: server.command }),
+          ...(server.args?.length && { args: server.args }),
+          ...(server.env && Object.keys(server.env).length && { env: server.env }),
+          ...(server.url && { url: server.url }),
           ...(server.headers && Object.keys(server.headers).length && { headers: server.headers }),
         };
       }

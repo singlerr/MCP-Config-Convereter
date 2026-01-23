@@ -38,6 +38,10 @@
       "name": "Antigravity",
       "description": "AI 개발 도구"
     },
+    "junie": {
+      "name": "JetBrains Junie / AI Assistant",
+      "description": "JetBrains IDE AI Assistant"
+    },
     "roo-code": {
       "name": "Roo Code",
       "description": "AI 코딩 어시스턴트 VS Code 확장"
