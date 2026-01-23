@@ -262,7 +262,7 @@ export interface GeminiMcpServer {
   args?: string[];
   env?: Record<string, string>;
   cwd?: string;
-  url?: string;
+  serverUrl?: string;
   httpUrl?: string;
   headers?: Record<string, string>;
   timeout?: number;
@@ -281,8 +281,16 @@ export interface LMStudioConfig {
 }
 
 // Antigravity format
+export interface AntigravityMcpServer {
+  command?: string;
+  args?: string[];
+  env?: Record<string, string>;
+  serverUrl?: string;
+  headers?: Record<string, string>;
+}
+
 export interface AntigravityConfig {
-  mcpServers: Record<string, McpServerBase>;
+  mcpServers: Record<string, AntigravityMcpServer>;
 }
 
 // Roo Code format
