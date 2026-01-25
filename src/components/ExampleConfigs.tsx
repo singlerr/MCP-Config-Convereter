@@ -159,7 +159,7 @@ mcpServers:
 command = "npx"
 args = ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]`,
 };
-};
+
 
 export function ExampleConfigs({ editorId, onSelect }: ExampleConfigsProps) {
   const { t } = useTranslation();
