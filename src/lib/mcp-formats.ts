@@ -10,7 +10,8 @@ export type EditorType =
   | 'roo-code'
   | 'copilot-cli'
   | 'continue-dev'
-  | 'codex-cli';
+  | 'codex-cli'
+  | 'cline';
 
 export interface EditorInfo {
   id: EditorType;
@@ -25,7 +26,7 @@ export const editors: EditorInfo[] = [
   {
     id: 'claude-desktop',
     name: 'Claude Desktop',
-    description: 'Anthropic의 Claude 데스크톱 앱',
+    description: 'Anthropic Claude Desktop App',
     configFileName: 'claude_desktop_config.json',
     docsUrl: 'https://modelcontextprotocol.io/quickstart/user',
     exampleConfig: `{
@@ -33,6 +34,23 @@ export const editors: EditorInfo[] = [
     "filesystem": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    }
+  }
+}`,
+  },
+  {
+    id: 'cline',
+    name: 'Cline',
+    description: 'Autonomous Coding Agent',
+    configFileName: 'cline_mcp_settings.json',
+    docsUrl: 'https://github.com/cline/cline',
+    exampleConfig: `{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
+      "disabled": false,
+      "autoApprove": []
     }
   }
 }`,
@@ -375,6 +393,16 @@ export interface CodexCliConfig {
   mcp_servers: Record<string, CodexMcpServer>;
 }
 
+// Cline format
+export interface ClineMcpServer extends McpServerBase {
+  disabled?: boolean;
+  autoApprove?: string[];
+}
+
+export interface ClineConfig {
+  mcpServers: Record<string, ClineMcpServer>;
+}
+
 // Universal intermediate format for conversion
 export interface UniversalMcpServer {
   name: string;
@@ -430,6 +458,19 @@ export function detectFormat(config: unknown): EditorType | null {
       // Roo Code specific fields
       if ('alwaysAllow' in firstServer) {
         return 'roo-code';
+      }
+      // Cline-specific fields (similar to Roo Code/Cursor but check priority or unique combo if possible)
+      // Since Cline and Roo Code/Cursor share very similar structure, we might rely on the user selection mostly,
+      // or detection might be ambiguous. For now, strict detection of 'autoApprove' without 'alwaysAllow' might be a hint for Cursor/Cline.
+      // But Cursor uses 'mcpServers' too.
+      // Let's rely on user selection for ambiguous cases or just let it default to claude-desktop if not distinct.
+      // However, if we want to be smarter:
+      if ('autoApprove' in firstServer) {
+        // Could be Cursor or Cline.
+        // There isn't a strong discriminator between Cursor and Cline config structure itself, config filename is the key.
+        // We will return 'cursor' as default for autoApprove or maybe 'cline'?
+        // Given Cursor is historically first with this exact field in this project context, keeping it ambiguous is okay.
+        // But let's check if we can differentiate.
       }
     }
 

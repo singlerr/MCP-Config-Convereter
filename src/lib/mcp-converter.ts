@@ -14,6 +14,7 @@ import type {
   CopilotCliConfig,
   ContinueDevConfig,
   CodexCliConfig,
+  ClineConfig,
 } from './mcp-formats';
 import YAML from 'yaml';
 import * as TOML from '@iarna/toml';
@@ -27,6 +28,23 @@ export function parseToUniversal(config: unknown, sourceFormat: EditorType): Uni
     case 'lmstudio':
     case 'junie': {
       const cfg = config as ClaudeDesktopConfig | LMStudioConfig | JunieConfig;
+      for (const [name, server] of Object.entries(cfg.mcpServers || {})) {
+        servers.push({
+          name,
+          transport: server.url ? 'http' : 'stdio',
+          command: server.command,
+          args: server.args,
+          env: server.env,
+          url: server.url,
+          headers: server.headers,
+        });
+      }
+      break;
+    }
+
+
+    case 'cline': {
+      const cfg = config as ClineConfig;
       for (const [name, server] of Object.entries(cfg.mcpServers || {})) {
         servers.push({
           name,
@@ -322,6 +340,24 @@ export function convertFromUniversal(universal: UniversalConfig, targetFormat: E
           ...(server.env && Object.keys(server.env).length && { env: server.env }),
           ...(server.url && { serverUrl: server.url }),
           ...(server.headers && Object.keys(server.headers).length && { headers: server.headers }),
+        };
+      }
+      return result;
+    }
+
+
+
+    case 'cline': {
+      const result: ClineConfig = { mcpServers: {} };
+      for (const server of universal.servers) {
+        result.mcpServers[server.name] = {
+          ...(server.command && { command: server.command }),
+          ...(server.args?.length && { args: server.args }),
+          ...(server.env && Object.keys(server.env).length && { env: server.env }),
+          ...(server.url && { url: server.url }),
+          ...(server.headers && Object.keys(server.headers).length && { headers: server.headers }),
+          disabled: false,
+          autoApprove: [],
         };
       }
       return result;

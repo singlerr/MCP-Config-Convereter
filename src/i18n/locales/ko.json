@@ -14,6 +14,10 @@
       "name": "Claude Desktop",
       "description": "Anthropic의 Claude 데스크톱 앱"
     },
+    "cline": {
+      "name": "Cline",
+      "description": "자율 코딩 에이전트"
+    },
     "vscode": {
       "name": "VS Code",
       "description": "GitHub Copilot MCP 지원"

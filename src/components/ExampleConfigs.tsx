@@ -117,6 +117,48 @@ const examples: Record<EditorType, string> = {
     }
   }
 }`,
+  cline: `{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}`,
+  'roo-code': `{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
+      "alwaysAllow": [],
+      "disabled": false
+    }
+  }
+}`,
+  'copilot-cli': `{
+  "servers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    }
+  }
+}`,
+  'continue-dev': `name: Filesystem MCP
+version: 0.0.1
+mcpServers:
+  - name: filesystem
+    type: stdio
+    command: npx
+    args:
+      - -y
+      - "@modelcontextprotocol/server-filesystem"
+      - /path/to/files`,
+  'codex-cli': `[mcp_servers.filesystem]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]`,
+};
 };
 
 export function ExampleConfigs({ editorId, onSelect }: ExampleConfigsProps) {

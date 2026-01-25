@@ -14,6 +14,10 @@
       "name": "Claude Desktop",
       "description": "Anthropic's Claude desktop app"
     },
+    "cline": {
+      "name": "Cline",
+      "description": "Autonomous Coding Agent"
+    },
     "vscode": {
       "name": "VS Code",
       "description": "GitHub Copilot MCP support"
