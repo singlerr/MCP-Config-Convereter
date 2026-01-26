@@ -18,6 +18,10 @@
       "name": "Cline",
       "description": "Autonomous Coding Agent"
     },
+    "windsurf": {
+      "name": "Windsurf",
+      "description": "Codeium Windsurf Editor"
+    },
     "vscode": {
       "name": "VS Code",
       "description": "GitHub Copilot MCP support"

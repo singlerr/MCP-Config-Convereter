@@ -158,6 +158,14 @@ mcpServers:
   'codex-cli': `[mcp_servers.filesystem]
 command = "npx"
 args = ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]`,
+  windsurf: `{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    }
+  }
+}`,
 };
 
 

@@ -15,6 +15,7 @@ import type {
   ContinueDevConfig,
   CodexCliConfig,
   ClineConfig,
+  WindsurfConfig,
 } from './mcp-formats';
 import YAML from 'yaml';
 import * as TOML from '@iarna/toml';
@@ -25,9 +26,10 @@ export function parseToUniversal(config: unknown, sourceFormat: EditorType): Uni
 
   switch (sourceFormat) {
     case 'claude-desktop':
+    case 'windsurf':
     case 'lmstudio':
     case 'junie': {
-      const cfg = config as ClaudeDesktopConfig | LMStudioConfig | JunieConfig;
+      const cfg = config as ClaudeDesktopConfig | LMStudioConfig | JunieConfig | WindsurfConfig;
       for (const [name, server] of Object.entries(cfg.mcpServers || {})) {
         servers.push({
           name,
@@ -232,6 +234,22 @@ export function convertFromUniversal(universal: UniversalConfig, targetFormat: E
   switch (targetFormat) {
     case 'claude-desktop': {
       const result: ClaudeDesktopConfig = { mcpServers: {} };
+      for (const server of universal.servers) {
+        result.mcpServers[server.name] = {
+          ...(server.command && { command: server.command }),
+          ...(server.args?.length && { args: server.args }),
+          ...(server.env && Object.keys(server.env).length && { env: server.env }),
+          ...(server.url && { url: server.url }),
+          ...(server.headers && Object.keys(server.headers).length && { headers: server.headers }),
+        };
+      }
+      return result;
+    }
+
+
+
+    case 'windsurf': {
+      const result: WindsurfConfig = { mcpServers: {} };
       for (const server of universal.servers) {
         result.mcpServers[server.name] = {
           ...(server.command && { command: server.command }),

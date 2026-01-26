@@ -11,7 +11,8 @@ export type EditorType =
   | 'copilot-cli'
   | 'continue-dev'
   | 'codex-cli'
-  | 'cline';
+  | 'cline'
+  | 'windsurf';
 
 export interface EditorInfo {
   id: EditorType;
@@ -29,6 +30,21 @@ export const editors: EditorInfo[] = [
     description: 'Anthropic Claude Desktop App',
     configFileName: 'claude_desktop_config.json',
     docsUrl: 'https://modelcontextprotocol.io/quickstart/user',
+    exampleConfig: `{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    }
+  }
+}`,
+  },
+  {
+    id: 'windsurf',
+    name: 'Windsurf',
+    description: 'Codeium Windsurf Editor',
+    configFileName: 'mcp_config.json',
+    docsUrl: 'https://docs.codeium.com/',
     exampleConfig: `{
   "mcpServers": {
     "filesystem": {
@@ -401,6 +417,11 @@ export interface ClineMcpServer extends McpServerBase {
 
 export interface ClineConfig {
   mcpServers: Record<string, ClineMcpServer>;
+}
+
+// Windsurf format (standard MCP)
+export interface WindsurfConfig {
+  mcpServers: Record<string, McpServerBase>;
 }
 
 // Universal intermediate format for conversion
