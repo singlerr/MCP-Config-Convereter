@@ -35,7 +35,11 @@ export const editors: EditorInfo[] = [
   "mcpServers": {
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/username/Desktop"]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
     }
   }
 }`,
@@ -51,6 +55,13 @@ export const editors: EditorInfo[] = [
     "filesystem": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_your_token_here"
+      }
     }
   }
 }`,
@@ -67,8 +78,8 @@ export const editors: EditorInfo[] = [
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
       "disabled": false,
-      "alwaysAllow": [],
-      "autoApprove": []
+      "alwaysAllow": ["read_file", "list_directory"],
+      "autoApprove": ["write_file"]
     }
   }
 }`,
@@ -84,6 +95,11 @@ export const editors: EditorInfo[] = [
     "filesystem": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    },
+    "sequential-thinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
     }
   }
 }`,
@@ -100,7 +116,7 @@ export const editors: EditorInfo[] = [
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
       "disabled": false,
-      "autoApprove": []
+      "autoApprove": ["read_file", "search_files"]
     }
   }
 }`,
@@ -116,6 +132,14 @@ export const editors: EditorInfo[] = [
     "filesystem": {
       "type": "local",
       "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
+      "enabled": true
+    },
+    "perplexica": {
+      "type": "local",
+      "command": ["uvx", "perplexica-mcp", "stdio"],
+      "environment": {
+        "PERPLEXICA_API_KEY": "sk-your-key-here"
+      },
       "enabled": true
     }
   }
@@ -148,6 +172,13 @@ export const editors: EditorInfo[] = [
     "filesystem": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "BSA_your_api_key_here"
+      }
     }
   }
 }`,
@@ -186,6 +217,13 @@ export const editors: EditorInfo[] = [
     "filesystem": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    },
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "POSTGRES_CONNECTION": "postgresql://localhost:5432/db"
+      }
     }
   }
 }`,
@@ -201,7 +239,7 @@ export const editors: EditorInfo[] = [
     "filesystem": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
-      "alwaysAllow": [],
+      "alwaysAllow": ["read_file", "write_file"],
       "disabled": false
     }
   }
@@ -237,7 +275,10 @@ mcpServers:
     args:
       - -y
       - "@modelcontextprotocol/server-filesystem"
-      - /path/to/files`,
+      - /path/to/files
+  - name: remote
+    type: sse
+    url: http://localhost:3000/sse`,
   },
   {
     id: 'codex-cli',
@@ -247,7 +288,12 @@ mcpServers:
     docsUrl: 'https://openai.com/codex',
     exampleConfig: `[mcp_servers.filesystem]
 command = "npx"
-args = ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]`,
+args = ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+
+[mcp_servers.slow_server]
+command = "python"
+args = ["-m", "server"]
+startup_timeout_sec = 60`,
   },
   {
     id: 'claude-code',
@@ -260,9 +306,16 @@ args = ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]`,
     "filesystem": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    },
+    "github": {
+      "command": "uvx",
+      "args": ["mcp-server-github"],
+      "env": {
+        "GITHUB_TOKEN": "token"
+      }
     }
   },
-  "allowedMcpServers": ["filesystem"]
+  "allowedMcpServers": ["filesystem", "github"]
 }`,
   },
 ];
