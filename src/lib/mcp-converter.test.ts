@@ -466,4 +466,810 @@ describe('mcp-converter field variations', () => {
       expect(opencode.mcp.local.cwd).toBe('/app');
     });
   });
+
+  describe('Round-trip conversion validation for all 16 editors', () => {
+    describe('Claude Desktop round-trip', () => {
+      it('should preserve stdio server configuration', () => {
+        const config = {
+          mcpServers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem', '/Users/username/Documents'],
+              env: { DEBUG: 'mcp:*' },
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'claude-desktop');
+        const result = convertFromUniversal(universal, 'claude-desktop');
+
+        expect(result).toEqual(config);
+      });
+
+      it('should preserve HTTP server configuration', () => {
+        const config = {
+          mcpServers: {
+            remote: {
+              url: 'http://localhost:3000/mcp',
+              headers: { Authorization: 'Bearer token123' },
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'claude-desktop');
+        const result = convertFromUniversal(universal, 'claude-desktop');
+
+        expect(result).toEqual(config);
+      });
+    });
+
+    describe('VS Code round-trip', () => {
+      it('should preserve servers key and configuration', () => {
+        const config = {
+          servers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem', '/workspace'],
+              env: { NODE_ENV: 'production' },
+              cwd: '/home/user/projects',
+            },
+            'sequential-thinking': {
+              type: 'stdio' as const,
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-sequential-thinking'],
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'vscode');
+        const result = convertFromUniversal(universal, 'vscode');
+
+        expect(result).toEqual(config);
+      });
+
+      it('should preserve HTTP server with type', () => {
+        const config = {
+          servers: {
+            remote: {
+              type: 'http' as const,
+              url: 'http://localhost:8080/api',
+              headers: { 'X-API-Key': 'secret' },
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'vscode');
+        const result = convertFromUniversal(universal, 'vscode');
+
+        expect(result).toEqual(config);
+      });
+    });
+
+    describe('Windsurf round-trip', () => {
+      it('should preserve standard mcpServers format', () => {
+        const config = {
+          mcpServers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem', '/path/to/files'],
+            },
+            github: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-github'],
+              env: { GITHUB_TOKEN: 'ghp_token123' },
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'windsurf');
+        const result = convertFromUniversal(universal, 'windsurf');
+
+        expect(result).toEqual(config);
+      });
+
+      it('should preserve url field for HTTP servers', () => {
+        const config = {
+          mcpServers: {
+            remote: {
+              url: 'http://api.example.com/mcp',
+              headers: { Authorization: 'Bearer xyz' },
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'windsurf');
+        const result = convertFromUniversal(universal, 'windsurf');
+
+        expect(result).toEqual(config);
+      });
+    });
+
+    describe('Cline round-trip', () => {
+      it('should preserve alwaysAllow and autoApprove arrays', () => {
+        const config = {
+          mcpServers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem', '/home'],
+              disabled: false,
+              alwaysAllow: ['read_file', 'list_directory'],
+              autoApprove: ['write_file'],
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'cline');
+        const result = convertFromUniversal(universal, 'cline');
+
+        expect(result).toEqual(config);
+      });
+
+      it('should preserve empty permission arrays', () => {
+        const config = {
+          mcpServers: {
+            sequentialThinking: {
+              command: 'uvx',
+              args: ['mcp-server-sequential-thinking'],
+              disabled: false,
+              alwaysAllow: [],
+              autoApprove: [],
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'cline');
+        const result = convertFromUniversal(universal, 'cline');
+
+        expect(result).toEqual(config);
+      });
+    });
+
+    describe('Cursor round-trip', () => {
+      it('should preserve disabled and autoApprove fields', () => {
+        const config = {
+          mcpServers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem', '/workspace'],
+              disabled: false,
+              autoApprove: ['read_file', 'search_files'],
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'cursor');
+        const result = convertFromUniversal(universal, 'cursor');
+
+        expect(result).toEqual(config);
+      });
+
+      it('should handle servers without autoApprove', () => {
+        const config = {
+          mcpServers: {
+            fetch: {
+              command: 'uvx',
+              args: ['mcp-server-fetch'],
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'cursor');
+        const result = convertFromUniversal(universal, 'cursor');
+
+        expect(result).toEqual(config);
+      });
+    });
+
+    describe('OpenCode round-trip', () => {
+      it('should preserve array-based command format', () => {
+        const config = {
+          mcp: {
+            filesystem: {
+              type: 'local' as const,
+              command: ['uvx', 'mcp-server-filesystem', '/data'],
+              environment: { PATH: '/usr/local/bin:/usr/bin' },
+              enabled: true,
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'opencode');
+        const result = convertFromUniversal(universal, 'opencode');
+
+        expect(result).toEqual(config);
+      });
+
+      it('should preserve remote server type', () => {
+        const config = {
+          mcp: {
+            api: {
+              type: 'remote' as const,
+              url: 'https://api.example.com/mcp',
+              headers: { 'X-Custom': 'header' },
+              enabled: true,
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'opencode');
+        const result = convertFromUniversal(universal, 'opencode');
+
+        expect(result).toEqual(config);
+      });
+    });
+
+    describe('Gemini CLI round-trip', () => {
+      it('should preserve timeout and standard url', () => {
+        const config = {
+          mcpServers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem', '/docs'],
+              timeout: 30000,
+              env: { LOG_LEVEL: 'debug' },
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'gemini-cli');
+        const result = convertFromUniversal(universal, 'gemini-cli');
+
+        expect(result).toEqual(config);
+      });
+
+      it('should convert httpUrl to url on round-trip', () => {
+        const config = {
+          mcpServers: {
+            remote: {
+              httpUrl: 'http://localhost:5000',
+              timeout: 15000,
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'gemini-cli');
+        const result = convertFromUniversal(universal, 'gemini-cli');
+
+        expect(result).toEqual({
+          mcpServers: {
+            remote: {
+              url: 'http://localhost:5000',
+              timeout: 15000,
+            },
+          },
+        });
+      });
+    });
+
+    describe('LM Studio round-trip', () => {
+      it('should preserve basic mcpServers format', () => {
+        const config = {
+          mcpServers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem', '/storage'],
+              env: { DEBUG: 'true' },
+            },
+            brave: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-brave-search'],
+              env: { BRAVE_API_KEY: 'BSA123' },
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'lmstudio');
+        const result = convertFromUniversal(universal, 'lmstudio');
+
+        expect(result).toEqual(config);
+      });
+    });
+
+    describe('Antigravity round-trip', () => {
+      it('should preserve serverUrl field', () => {
+        const config = {
+          mcpServers: {
+            remote: {
+              serverUrl: 'http://localhost:3000/api',
+              headers: { Authorization: 'Bearer token' },
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'antigravity');
+        const result = convertFromUniversal(universal, 'antigravity');
+
+        expect(result).toEqual(config);
+      });
+
+      it('should preserve stdio servers', () => {
+        const config = {
+          mcpServers: {
+            'sequential-thinking': {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-sequential-thinking'],
+            },
+            qdrant: {
+              command: 'uvx',
+              args: ['mcp-server-qdrant'],
+              env: {
+                QDRANT_URL: 'http://localhost:6333',
+                COLLECTION_NAME: 'my-collection',
+              },
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'antigravity');
+        const result = convertFromUniversal(universal, 'antigravity');
+
+        expect(result).toEqual(config);
+      });
+    });
+
+    describe('Junie round-trip', () => {
+      it('should preserve standard mcpServers format', () => {
+        const config = {
+          mcpServers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem', '/projects'],
+            },
+            postgres: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-postgres'],
+              env: { POSTGRES_CONNECTION: 'postgresql://localhost:5432/db' },
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'junie');
+        const result = convertFromUniversal(universal, 'junie');
+
+        expect(result).toEqual(config);
+      });
+    });
+
+    describe('Roo Code round-trip', () => {
+      it('should preserve alwaysAllow and disabled fields', () => {
+        const config = {
+          mcpServers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem', '/workspace'],
+              cwd: '/home/user',
+              alwaysAllow: ['read_file', 'write_file'],
+              disabled: false,
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'roo-code');
+        const result = convertFromUniversal(universal, 'roo-code');
+
+        expect(result).toEqual(config);
+      });
+
+      it('should handle servers without permission arrays', () => {
+        const config = {
+          mcpServers: {
+            github: {
+              command: 'uvx',
+              args: ['mcp-server-github'],
+              env: { GITHUB_TOKEN: 'ghp_xyz' },
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'roo-code');
+        const result = convertFromUniversal(universal, 'roo-code');
+
+        expect(result).toEqual(config);
+      });
+    });
+
+    describe('Copilot CLI round-trip', () => {
+      it('should preserve servers key structure', () => {
+        const config = {
+          servers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem', '/code'],
+              env: { LOG_LEVEL: 'info' },
+              cwd: '/home/dev',
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'copilot-cli');
+        const result = convertFromUniversal(universal, 'copilot-cli');
+
+        expect(result).toEqual(config);
+      });
+
+      it('should preserve SSE server type', () => {
+        const config = {
+          servers: {
+            events: {
+              type: 'sse' as const,
+              url: 'http://localhost:4000/events',
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'copilot-cli');
+        const result = convertFromUniversal(universal, 'copilot-cli');
+
+        expect(result).toEqual(config);
+      });
+    });
+
+    describe('Continue Dev round-trip', () => {
+      it('should preserve array-based mcpServers', () => {
+        const config = {
+          name: 'Dev Config',
+          version: '0.0.1',
+          schema: 'v1',
+          mcpServers: [
+            {
+              name: 'filesystem',
+              type: 'stdio' as const,
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem'],
+              env: { DEBUG: 'mcp:*' },
+            },
+            {
+              name: 'remote',
+              type: 'sse' as const,
+              url: 'http://localhost:3000/sse',
+            },
+          ],
+        };
+
+        const universal = parseToUniversal(config, 'continue-dev');
+        const result = convertFromUniversal(universal, 'continue-dev');
+
+        expect(result).toEqual({
+          name: 'MCP Config',
+          version: '0.0.1',
+          schema: 'v1',
+          mcpServers: [
+            {
+              name: 'filesystem',
+              type: 'stdio',
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem'],
+              env: { DEBUG: 'mcp:*' },
+            },
+            {
+              name: 'remote',
+              type: 'sse',
+              url: 'http://localhost:3000/sse',
+            },
+          ],
+        });
+      });
+
+      it('should preserve streamable-http type', () => {
+        const config = {
+          mcpServers: [
+            {
+              name: 'api',
+              type: 'streamable-http' as const,
+              url: 'http://api.example.com',
+            },
+          ],
+        };
+
+        const universal = parseToUniversal(config, 'continue-dev');
+        const result = convertFromUniversal(universal, 'continue-dev');
+
+        expect(result).toEqual({
+          name: 'MCP Config',
+          version: '0.0.1',
+          schema: 'v1',
+          mcpServers: [
+            {
+              name: 'api',
+              type: 'streamable-http',
+              url: 'http://api.example.com',
+            },
+          ],
+        });
+      });
+    });
+
+    describe('Codex CLI round-trip', () => {
+      it('should preserve mcp_servers with underscore', () => {
+        const config = {
+          mcp_servers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem', '/data'],
+              env: { NODE_ENV: 'production' },
+              cwd: '/app',
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'codex-cli');
+        const result = convertFromUniversal(universal, 'codex-cli');
+
+        expect(result).toEqual(config);
+      });
+
+      it('should preserve startup_timeout_sec', () => {
+        const config = {
+          mcp_servers: {
+            slow_server: {
+              command: 'python',
+              args: ['-m', 'server'],
+              startup_timeout_sec: 60,
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'codex-cli');
+        const result = convertFromUniversal(universal, 'codex-cli');
+
+        expect(result).toEqual(config);
+      });
+    });
+
+    describe('Claude Code round-trip', () => {
+      it('should preserve allowedMcpServers list', () => {
+        const config = {
+          mcpServers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem', '/docs'],
+            },
+            github: {
+              command: 'uvx',
+              args: ['mcp-server-github'],
+              env: { GITHUB_TOKEN: 'token' },
+            },
+          },
+          allowedMcpServers: ['filesystem', 'github'],
+        };
+
+        const universal = parseToUniversal(config, 'claude-code');
+        const result = convertFromUniversal(universal, 'claude-code');
+
+        expect(result).toEqual(config);
+      });
+
+      it('should add type field and generate allowed list', () => {
+        const config = {
+          mcpServers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem'],
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'claude-code');
+        const result = convertFromUniversal(universal, 'claude-code');
+
+        expect(result).toEqual({
+          mcpServers: {
+            filesystem: {
+              type: 'stdio',
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem'],
+            },
+          },
+          allowedMcpServers: ['filesystem'],
+        });
+      });
+    });
+
+    describe('Complex multi-server round-trip tests', () => {
+      it('should handle VS Code config with multiple servers and types', () => {
+        const config = {
+          servers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem', '/workspace'],
+              env: { DEBUG: 'true' },
+              cwd: '/projects',
+            },
+            remote: {
+              type: 'http' as const,
+              url: 'http://localhost:8080',
+              headers: { Authorization: 'Bearer xyz' },
+            },
+            sse: {
+              type: 'sse' as const,
+              url: 'http://localhost:9000/events',
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'vscode');
+        const result = convertFromUniversal(universal, 'vscode');
+
+        expect(result).toEqual(config);
+      });
+
+      it('should handle Cline config with mixed permission settings', () => {
+        const config = {
+          mcpServers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem'],
+              disabled: false,
+              alwaysAllow: ['read_file'],
+              autoApprove: ['list_directory', 'search_files'],
+            },
+            github: {
+              command: 'uvx',
+              args: ['mcp-server-github'],
+              env: { GITHUB_TOKEN: 'secret' },
+              disabled: false,
+              alwaysAllow: [],
+              autoApprove: [],
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'cline');
+        const result = convertFromUniversal(universal, 'cline');
+
+        expect(result).toEqual(config);
+      });
+    });
+
+    describe('Cross-editor conversion accuracy', () => {
+      it('should correctly convert VS Code servers to Windsurf mcpServers', () => {
+        const vscode = {
+          servers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem'],
+            },
+          },
+        };
+
+        const universal = parseToUniversal(vscode, 'vscode');
+        const windsurf = convertFromUniversal(universal, 'windsurf');
+
+        expect(windsurf).toEqual({
+          mcpServers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem'],
+            },
+          },
+        });
+      });
+
+      it('should correctly convert Windsurf url to Antigravity serverUrl', () => {
+        const windsurf = {
+          mcpServers: {
+            remote: {
+              url: 'http://localhost:3000',
+              headers: { 'X-Key': 'value' },
+            },
+          },
+        };
+
+        const universal = parseToUniversal(windsurf, 'windsurf');
+        const antigravity = convertFromUniversal(universal, 'antigravity');
+
+        expect(antigravity).toEqual({
+          mcpServers: {
+            remote: {
+              serverUrl: 'http://localhost:3000',
+              headers: { 'X-Key': 'value' },
+            },
+          },
+        });
+      });
+
+      it('should correctly convert Cline to Cursor (alwaysAllow to autoApprove)', () => {
+        const cline = {
+          mcpServers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem'],
+              disabled: false,
+              alwaysAllow: ['read_file', 'write_file'],
+              autoApprove: ['search'],
+            },
+          },
+        };
+
+        const universal = parseToUniversal(cline, 'cline');
+        const cursor = convertFromUniversal(universal, 'cursor');
+
+        expect(cursor).toEqual({
+          mcpServers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem'],
+            },
+          },
+        });
+      });
+    });
+
+    describe('Real-world example configs', () => {
+      it('should handle Claude Desktop filesystem and sequential-thinking', () => {
+        const config = {
+          mcpServers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem', '/Users/username/Desktop'],
+            },
+            'sequential-thinking': {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-sequential-thinking'],
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'claude-desktop');
+        const result = convertFromUniversal(universal, 'claude-desktop');
+
+        expect(result).toEqual(config);
+      });
+
+      it('should handle OpenCode with uvx command array', () => {
+        const config = {
+          mcp: {
+            perplexica: {
+              type: 'local' as const,
+              command: ['uvx', 'perplexica-mcp', 'stdio'],
+              environment: { PERPLEXICA_API_KEY: 'sk-test' },
+              enabled: true,
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'opencode');
+        const result = convertFromUniversal(universal, 'opencode');
+
+        expect(result).toEqual(config);
+      });
+
+      it('should handle Antigravity qdrant server example', () => {
+        const config = {
+          mcpServers: {
+            qdrant: {
+              command: 'uvx',
+              args: ['mcp-server-qdrant'],
+              env: {
+                QDRANT_URL: 'http://localhost:6333',
+                COLLECTION_NAME: 'my-collection',
+              },
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'antigravity');
+        const result = convertFromUniversal(universal, 'antigravity');
+
+        expect(result).toEqual(config);
+      });
+
+      it('should handle Codex CLI with timeout configuration', () => {
+        const config = {
+          mcp_servers: {
+            filesystem: {
+              command: 'npx',
+              args: ['-y', '@modelcontextprotocol/server-filesystem', '/home/user'],
+              startup_timeout_sec: 30,
+            },
+          },
+        };
+
+        const universal = parseToUniversal(config, 'codex-cli');
+        const result = convertFromUniversal(universal, 'codex-cli');
+
+        expect(result).toEqual(config);
+      });
+    });
+  });
 });
