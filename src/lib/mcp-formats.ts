@@ -276,23 +276,64 @@ export interface McpServerBase {
   headers?: Record<string, string>;
 }
 
-// Cursor-specific server with additional options
+/**
+ * Cursor-specific MCP server configuration with permission controls.
+ * 
+ * @remarks
+ * Extends base MCP server with Cursor-specific fields for controlling server behavior and auto-approvals.
+ */
 export interface CursorMcpServer extends McpServerBase {
   disabled?: boolean;
   autoApprove?: string[];
 }
 
-// Claude Desktop format
+/**
+ * Claude Desktop MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+ * - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+ * 
+ * **Key Structure:**
+ * - Uses `mcpServers` object with server name as keys
+ * - Standard MCP format without special extensions
+ * 
+ * **Field Support:**
+ * - `command`, `args`, `env` for stdio transport
+ * - `url`, `headers` for SSE/HTTP transport
+ */
 export interface ClaudeDesktopConfig {
   mcpServers: Record<string, McpServerBase>;
 }
 
-// Cursor format
+/**
+ * Cursor MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - Global: `~/.cursor/mcp.json` (macOS/Linux) or `%USERPROFILE%\.cursor\mcp.json` (Windows)
+ * - Project: `.cursor/mcp.json`
+ * 
+ * **Key Structure:**
+ * - Uses `mcpServers` object with server name as keys
+ * - Extends base format with Cursor-specific permission controls
+ * 
+ * **Field Support:**
+ * - All standard fields (`command`, `args`, `env`, `url`, `headers`)
+ * - `disabled`: Boolean to disable a server without removing it
+ * - `autoApprove`: Array of tool/resource patterns to auto-approve
+ */
 export interface CursorConfig {
   mcpServers: Record<string, CursorMcpServer>;
 }
 
-// VS Code format
+/**
+ * VS Code MCP server configuration.
+ * 
+ * @remarks
+ * Used by GitHub Copilot MCP extension.
+ */
 export interface VSCodeMcpServer {
   type?: 'stdio' | 'http' | 'sse';
   command?: string;
@@ -304,6 +345,27 @@ export interface VSCodeMcpServer {
   headers?: Record<string, string>;
 }
 
+/**
+ * VS Code MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - Project: `.vscode/mcp.json`
+ * 
+ * **Key Structure:**
+ * - Uses `servers` (not `mcpServers`) object with server name as keys
+ * - Supports `inputs` array for dynamic configuration (e.g., password prompts)
+ * 
+ * **Field Support:**
+ * - `type`: Explicit transport type ('stdio', 'http', 'sse')
+ * - `command`, `args`: For stdio transport
+ * - `env`: Environment variables object
+ * - `envFile`: Path to .env file for environment variables
+ * - `cwd`: Working directory for server process
+ * - `url`, `headers`: For HTTP/SSE transport
+ * - `inputs`: Array for prompting users for sensitive data like passwords
+ *   - Each input has `type`, `id`, `description`, and optional `password` boolean
+ */
 export interface VSCodeConfig {
   inputs?: Array<{
     type: string;
@@ -314,13 +376,18 @@ export interface VSCodeConfig {
   servers: Record<string, VSCodeMcpServer>;
 }
 
-// OpenCode format (supports both TOML and JSON)
+/**
+ * OpenCode MCP server configuration.
+ * 
+ * @remarks
+ * Supports both JSON and TOML formats with flexible command specification.
+ */
 export interface OpenCodeMcpServer {
   type?: 'local' | 'remote';
-  command?: string | string[];  // Can be array like ["uvx", "server-name"]
+  command?: string | string[];
   args?: string[];
   env?: Record<string, string>;
-  environment?: Record<string, string>;  // Alternative to env
+  environment?: Record<string, string>;
   cwd?: string;
   url?: string;
   headers?: Record<string, string>;
@@ -328,11 +395,37 @@ export interface OpenCodeMcpServer {
   debug?: boolean;
 }
 
+/**
+ * OpenCode MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - `opencode.json` or `opencode.toml`
+ * 
+ * **Key Structure:**
+ * - Uses `mcp` (not `mcpServers`) object with server name as keys
+ * - Supports both JSON and TOML format variants
+ * 
+ * **Field Support:**
+ * - `type`: 'local' or 'remote' server type
+ * - `command`: Can be string or array format (e.g., `["uvx", "server-name"]`)
+ * - `args`: Additional arguments array
+ * - `env` or `environment`: Both supported for environment variables
+ * - `cwd`: Working directory
+ * - `url`, `headers`: For remote servers
+ * - `enabled`: Boolean to enable/disable server
+ * - `debug`: Boolean to enable debug mode
+ */
 export interface OpenCodeConfig {
   mcp: Record<string, OpenCodeMcpServer>;
 }
 
-// Gemini CLI format
+/**
+ * Gemini CLI MCP server configuration.
+ * 
+ * @remarks
+ * Includes Gemini-specific fields for tool filtering and trust management.
+ */
 export interface GeminiMcpServer {
   command?: string;
   args?: string[];
@@ -347,16 +440,54 @@ export interface GeminiMcpServer {
   excludeTools?: string[];
 }
 
+/**
+ * Gemini CLI MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - `settings.json`
+ * 
+ * **Key Structure:**
+ * - Uses `mcpServers` object with server name as keys
+ * - Extended with Gemini-specific tool management fields
+ * 
+ * **Field Support:**
+ * - All standard fields (`command`, `args`, `env`, `cwd`)
+ * - `url` or `httpUrl`: HTTP endpoint (two naming variations)
+ * - `headers`: HTTP headers
+ * - `timeout`: Connection timeout in milliseconds
+ * - `trust`: Boolean to trust server without confirmation
+ * - `includeTools`: Whitelist of tool names to expose
+ * - `excludeTools`: Blacklist of tool names to hide
+ */
 export interface GeminiCliConfig {
   mcpServers: Record<string, GeminiMcpServer>;
 }
 
-// LM Studio format (follows Cursor notation)
+/**
+ * LM Studio MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - `mcp.json`
+ * 
+ * **Key Structure:**
+ * - Uses `mcpServers` object with server name as keys
+ * - Follows standard MCP format similar to Claude Desktop
+ * 
+ * **Field Support:**
+ * - Standard fields: `command`, `args`, `env`, `url`, `headers`
+ */
 export interface LMStudioConfig {
   mcpServers: Record<string, McpServerBase>;
 }
 
-// Antigravity format
+/**
+ * Antigravity MCP server configuration.
+ * 
+ * @remarks
+ * Uses `serverUrl` instead of standard `url` field.
+ */
 export interface AntigravityMcpServer {
   command?: string;
   args?: string[];
@@ -365,27 +496,90 @@ export interface AntigravityMcpServer {
   headers?: Record<string, string>;
 }
 
+/**
+ * Antigravity MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - `mcp_config.json`
+ * 
+ * **Key Structure:**
+ * - Uses `mcpServers` object with server name as keys
+ * 
+ * **Field Support:**
+ * - Standard fields: `command`, `args`, `env`, `headers`
+ * - `serverUrl` (not `url`): Non-standard field name for HTTP endpoint
+ */
 export interface AntigravityConfig {
   mcpServers: Record<string, AntigravityMcpServer>;
 }
 
-// JetBrains Junie format
+/**
+ * JetBrains Junie / AI Assistant MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - `.junie/mcp/mcp.json`
+ * 
+ * **Key Structure:**
+ * - Uses `mcpServers` object with server name as keys
+ * - Follows standard MCP format
+ * 
+ * **Field Support:**
+ * - Standard fields: `command`, `args`, `env`, `url`, `headers`
+ */
 export interface JunieConfig {
   mcpServers: Record<string, McpServerBase>;
 }
 
-// Roo Code format
+/**
+ * Roo Code MCP server configuration.
+ * 
+ * @remarks
+ * Extends base format with working directory and permission controls.
+ */
 export interface RooCodeMcpServer extends McpServerBase {
   cwd?: string;
   alwaysAllow?: string[];
   disabled?: boolean;
 }
 
+/**
+ * Roo Code MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - `.roo/mcp.json`
+ * 
+ * **Key Structure:**
+ * - Uses `mcpServers` object with server name as keys
+ * - Extended with Roo Code-specific permission controls
+ * 
+ * **Field Support:**
+ * - All standard fields (`command`, `args`, `env`, `url`, `headers`)
+ * - `cwd`: Working directory for server process
+ * - `alwaysAllow`: Array of tool/resource patterns to auto-approve without prompting
+ * - `disabled`: Boolean to disable a server without removing it
+ */
 export interface RooCodeConfig {
   mcpServers: Record<string, RooCodeMcpServer>;
 }
 
-// GitHub Copilot CLI format (same as VS Code)
+/**
+ * GitHub Copilot CLI MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - `mcp-config.json`
+ * 
+ * **Key Structure:**
+ * - Uses `servers` (not `mcpServers`) object with server name as keys
+ * - Similar to VS Code format with inputs support
+ * 
+ * **Field Support:**
+ * - Same as VS Code: `type`, `command`, `args`, `env`, `envFile`, `cwd`, `url`, `headers`
+ * - `inputs`: Array for dynamic configuration and password prompts
+ */
 export interface CopilotCliConfig {
   servers: Record<string, VSCodeMcpServer>;
   inputs?: Array<{
@@ -396,7 +590,12 @@ export interface CopilotCliConfig {
   }>;
 }
 
-// Continue Dev format (YAML-based)
+/**
+ * Continue Dev MCP server configuration.
+ * 
+ * @remarks
+ * Array-based configuration with named servers.
+ */
 export interface ContinueMcpServer {
   name: string;
   type?: 'stdio' | 'sse' | 'streamable-http';
@@ -406,6 +605,26 @@ export interface ContinueMcpServer {
   url?: string;
 }
 
+/**
+ * Continue Dev MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - `.continue/mcpServers/*.yaml`
+ * 
+ * **Key Structure:**
+ * - Uses YAML format (not JSON)
+ * - `mcpServers` is an array of server objects (not a keyed object)
+ * - Each server has `name` property for identification
+ * 
+ * **Field Support:**
+ * - `name`: Required server identifier
+ * - `type`: Transport type ('stdio', 'sse', 'streamable-http')
+ * - `command`, `args`: For stdio transport
+ * - `env`: Environment variables
+ * - `url`: For SSE/HTTP transport
+ * - Top-level `name`, `version`, `schema`: Metadata for the config file
+ */
 export interface ContinueDevConfig {
   name?: string;
   version?: string;
@@ -413,7 +632,12 @@ export interface ContinueDevConfig {
   mcpServers: ContinueMcpServer[];
 }
 
-// Codex CLI format (TOML-based)
+/**
+ * Codex CLI MCP server configuration.
+ * 
+ * @remarks
+ * TOML-based configuration with snake_case naming.
+ */
 export interface CodexMcpServer {
   command?: string;
   args?: string[];
@@ -423,22 +647,79 @@ export interface CodexMcpServer {
   startup_timeout_sec?: number;
 }
 
+/**
+ * Codex CLI MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - `~/.codex/config.toml`
+ * 
+ * **Key Structure:**
+ * - Uses TOML format (not JSON)
+ * - Uses `mcp_servers` with underscore (not `mcpServers`)
+ * - Server configurations use snake_case naming
+ * 
+ * **Field Support:**
+ * - Standard fields: `command`, `args`, `env`, `cwd`, `url`
+ * - `startup_timeout_sec`: Timeout in seconds for server startup
+ */
 export interface CodexCliConfig {
   mcp_servers: Record<string, CodexMcpServer>;
 }
 
-// Cline format
+/**
+ * Cline MCP server configuration.
+ * 
+ * @remarks
+ * Extends base format with dual permission control arrays.
+ */
 export interface ClineMcpServer extends McpServerBase {
   disabled?: boolean;
   alwaysAllow?: string[];
   autoApprove?: string[];
 }
 
+/**
+ * Cline MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - `cline_mcp_settings.json`
+ * 
+ * **Key Structure:**
+ * - Uses `mcpServers` object with server name as keys
+ * - Extended with comprehensive permission controls
+ * 
+ * **Field Support:**
+ * - All standard fields (`command`, `args`, `env`, `url`, `headers`)
+ * - `disabled`: Boolean to disable a server without removing it
+ * - `alwaysAllow`: Array of tool/resource patterns to always allow without prompting
+ * - `autoApprove`: Array of tool/resource patterns to automatically approve
+ * 
+ * Note: Cline is unique in having both `alwaysAllow` AND `autoApprove` arrays
+ */
 export interface ClineConfig {
   mcpServers: Record<string, ClineMcpServer>;
 }
 
-// Windsurf format (standard MCP)
+/**
+ * Windsurf MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - `mcp_config.json`
+ * 
+ * **Key Structure:**
+ * - Uses `mcpServers` object with server name as keys
+ * - Follows standard MCP format
+ * 
+ * **Field Support:**
+ * - Standard fields: `command`, `args`, `env`
+ * - `url` (not `serverUrl`): Standard field name for HTTP endpoints
+ * - `headers`: HTTP headers
+ * 
+ * Note: Uses standard `url` field, unlike Antigravity which uses `serverUrl`
+ */
 export interface WindsurfConfig {
   mcpServers: Record<string, McpServerBase>;
 }
@@ -460,11 +741,33 @@ export interface UniversalConfig {
   servers: UniversalMcpServer[];
 }
 
-// Claude Code format
+/**
+ * Claude Code MCP server configuration.
+ * 
+ * @remarks
+ * Extends base format with optional type field.
+ */
 export interface ClaudeCodeMcpServer extends McpServerBase {
   type?: string;
 }
 
+/**
+ * Claude Code MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - `.claude.json`
+ * 
+ * **Key Structure:**
+ * - Uses `mcpServers` object with server name as keys
+ * - Includes server allowlist/denylist arrays at root level
+ * 
+ * **Field Support:**
+ * - All standard fields (`command`, `args`, `env`, `url`, `headers`)
+ * - `type`: Optional server type field
+ * - `allowedMcpServers`: Array of server names to whitelist
+ * - `deniedMcpServers`: Array of server names to blacklist
+ */
 export interface ClaudeCodeConfig {
   mcpServers: Record<string, ClaudeCodeMcpServer>;
   allowedMcpServers?: string[];
