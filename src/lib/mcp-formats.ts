@@ -67,6 +67,7 @@ export const editors: EditorInfo[] = [
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
       "disabled": false,
+      "alwaysAllow": [],
       "autoApprove": []
     }
   }
@@ -90,7 +91,7 @@ export const editors: EditorInfo[] = [
   {
     id: 'cursor',
     name: 'Cursor',
-    description: 'AI-first 코드 에디터',
+    description: 'AI-first 코드 에디터 (전역: ~/.cursor/mcp.json, 프로젝트: .cursor/mcp.json)',
     configFileName: '.cursor/mcp.json',
     docsUrl: 'https://docs.cursor.com/context/model-context-protocol',
     exampleConfig: `{
@@ -429,6 +430,7 @@ export interface CodexCliConfig {
 // Cline format
 export interface ClineMcpServer extends McpServerBase {
   disabled?: boolean;
+  alwaysAllow?: string[];
   autoApprove?: string[];
 }
 
@@ -509,22 +511,17 @@ export function detectFormat(config: unknown): EditorType | null {
       if ('httpUrl' in firstServer || 'trust' in firstServer || 'includeTools' in firstServer) {
         return 'gemini-cli';
       }
-      // Roo Code specific fields
+      // Cline-specific: has both alwaysAllow AND autoApprove
+      if ('alwaysAllow' in firstServer && 'autoApprove' in firstServer) {
+        return 'cline';
+      }
+      // Roo Code specific: has alwaysAllow but not autoApprove
       if ('alwaysAllow' in firstServer) {
         return 'roo-code';
       }
-      // Cline-specific fields (similar to Roo Code/Cursor but check priority or unique combo if possible)
-      // Since Cline and Roo Code/Cursor share very similar structure, we might rely on the user selection mostly,
-      // or detection might be ambiguous. For now, strict detection of 'autoApprove' without 'alwaysAllow' might be a hint for Cursor/Cline.
-      // But Cursor uses 'mcpServers' too.
-      // Let's rely on user selection for ambiguous cases or just let it default to claude-desktop if not distinct.
-      // However, if we want to be smarter:
+      // Cursor-specific: has autoApprove but not alwaysAllow
       if ('autoApprove' in firstServer) {
-        // Could be Cursor or Cline.
-        // There isn't a strong discriminator between Cursor and Cline config structure itself, config filename is the key.
-        // We will return 'cursor' as default for autoApprove or maybe 'cline'?
-        // Given Cursor is historically first with this exact field in this project context, keeping it ambiguous is okay.
-        // But let's check if we can differentiate.
+        return 'cursor';
       }
     }
 

@@ -419,6 +419,7 @@ export function convertFromUniversal(universal: UniversalConfig, targetFormat: E
           ...(server.url && { url: server.url }),
           ...(server.headers && Object.keys(server.headers).length && { headers: server.headers }),
           disabled: false,
+          alwaysAllow: [],
           autoApprove: [],
         };
       }
