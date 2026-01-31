@@ -33,6 +33,8 @@
 | **Claude Desktop** | `claude_desktop_config.json` | [Docs](https://modelcontextprotocol.io/quickstart/user) |
 | **VS Code** (GitHub Copilot) | `.vscode/mcp.json` | [Docs](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) |
 | **Cursor** | `.cursor/mcp.json` | [Docs](https://docs.cursor.com/context/model-context-protocol) |
+| **Cline** | `cline_mcp_settings.json` | [Docs](https://github.com/cline/cline) |
+| **Windsurf** | `~/.codeium/windsurf/mcp_config.json` | [Docs](https://docs.codeium.com/) |
 | **OpenCode** | `opencode.json` | [Docs](https://opencode.ai/docs/mcp) |
 | **Gemini CLI** | `settings.json` | [Docs](https://github.com/google-gemini/gemini-cli) |
 | **LM Studio** | `mcp.json` | [Docs](https://lmstudio.ai/docs/mcp) |
@@ -140,29 +142,70 @@ List all supported editors and their default configuration paths.
 mcpconv editors
 ```
 
-## Example
+## Example Configurations
 
-### Claude Desktop → VS Code
-
-**Input (Claude Desktop):**
+### Claude Desktop
 ```json
 {
   "mcpServers": {
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/dir"]
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
     }
   }
 }
 ```
 
-**Output (VS Code):**
+### VS Code (GitHub Copilot)
 ```json
 {
   "servers": {
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/dir"]
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    }
+  }
+}
+```
+
+### Cursor
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
+```
+
+### Cline
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
+      "disabled": false,
+      "alwaysAllow": [],
+      "autoApprove": []
+    }
+  }
+}
+```
+
+### Windsurf
+**Path:** `~/.codeium/windsurf/mcp_config.json`
+
+```json
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
     }
   }
 }
@@ -172,14 +215,24 @@ mcpconv editors
 
 Each editor has unique configuration features:
 
-| Feature | Claude | VS Code | Cursor | OpenCode | Gemini CLI | LM Studio |
-|---------|--------|---------|--------|----------|------------|-----------|
-| Root Key | `mcpServers` | `servers` | `mcpServers` | `mcp` | `mcpServers` | `mcpServers` |
-| Type Field | ❌ | ✅ | ❌ | ✅ (`local`/`remote`) | ❌ | ❌ |
-| URL Support | ✅ | ✅ | ✅ | ✅ | ✅ (`httpUrl`) | ✅ |
-| Headers | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Timeout | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
-| Command Array | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Feature | Claude Desktop | VS Code | Cursor | Cline | Windsurf | OpenCode | Gemini CLI | LM Studio |
+|---------|----------------|---------|--------|-------|----------|----------|------------|-----------|
+| Root Key | `mcpServers` | `servers` | `mcpServers` | `mcpServers` | `mcpServers` | `mcp` | `mcpServers` | `mcpServers` |
+| Config Path | `claude_desktop_config.json` | `.vscode/mcp.json` | `.cursor/mcp.json` | `cline_mcp_settings.json` | `~/.codeium/windsurf/mcp_config.json` | `opencode.json` | `settings.json` | `mcp.json` |
+| Type Field | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ (`local`/`remote`) | ❌ | ❌ |
+| URL Support | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ (`httpUrl`) | ✅ |
+| Headers | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Timeout | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| Command Array | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Auto-Approval | ❌ | ❌ | `autoApprove` | `alwaysAllow` + `autoApprove` | ❌ | ❌ | ❌ | ❌ |
+| Disabled Flag | ❌ | ❌ | ✅ | ✅ | ❌ | `enabled` | ❌ | ❌ |
+
+**Key Differences:**
+- **VS Code** uses `servers` as the root key instead of `mcpServers`
+- **Cline** uniquely supports both `alwaysAllow` and `autoApprove` arrays for permission control
+- **Windsurf** stores configs at `~/.codeium/windsurf/mcp_config.json`
+- **Cursor** only has `autoApprove`, while **Cline** has both `alwaysAllow` and `autoApprove`
+- **OpenCode** uses `mcp` as root key and supports command as array format
 
 ## Tech Stack
 
