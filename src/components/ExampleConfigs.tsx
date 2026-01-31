@@ -166,6 +166,15 @@ args = ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]`,
     }
   }
 }`,
+  'claude-code': `{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    }
+  },
+  "allowedMcpServers": ["filesystem"]
+}`,
 };
 
 

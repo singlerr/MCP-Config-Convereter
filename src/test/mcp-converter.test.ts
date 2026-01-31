@@ -158,4 +158,45 @@ env = { KEY = "val" }
             expect(result.success).toBe(false);
         });
     });
+
+    // 5. Claude Code Tests (JSON)
+    describe('Claude Code', () => {
+        const claudeCodeConfig = {
+            mcpServers: {
+                'cc-server': {
+                    command: 'npx',
+                    args: ['-y', 'server-pkg'],
+                },
+            },
+            allowedMcpServers: ['cc-server'],
+        };
+        const ccString = JSON.stringify(claudeCodeConfig, null, 2);
+
+        it('should parse Claude Code config correctly', () => {
+            const result = convertConfig(ccString, 'claude-code', 'claude-desktop');
+            expect(result.success).toBe(true);
+            if (result.success) {
+                const output = JSON.parse(result.output);
+                expect(output.mcpServers['cc-server']).toBeDefined();
+            }
+        });
+
+        it('should convert to Claude Code format correctly', () => {
+            const claudeConfig = {
+                mcpServers: {
+                    'test-server': {
+                        command: 'npx',
+                        args: ['server'],
+                    },
+                },
+            };
+            const result = convertConfig(JSON.stringify(claudeConfig), 'claude-desktop', 'claude-code');
+            expect(result.success).toBe(true);
+            if (result.success) {
+                const output = JSON.parse(result.output);
+                expect(output.mcpServers['test-server']).toBeDefined();
+                expect(output.allowedMcpServers).toContain('test-server');
+            }
+        });
+    });
 });

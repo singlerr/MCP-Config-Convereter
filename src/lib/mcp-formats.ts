@@ -12,7 +12,8 @@ export type EditorType =
   | 'continue-dev'
   | 'codex-cli'
   | 'cline'
-  | 'windsurf';
+  | 'windsurf'
+  | 'claude-code';
 
 export interface EditorInfo {
   id: EditorType;
@@ -247,6 +248,22 @@ mcpServers:
 command = "npx"
 args = ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]`,
   },
+  {
+    id: 'claude-code',
+    name: 'Claude Code',
+    description: 'Anthropic Claude CLI Agent',
+    configFileName: '.claude.json',
+    docsUrl: 'https://code.claude.com/docs/mcp',
+    exampleConfig: `{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    }
+  },
+  "allowedMcpServers": ["filesystem"]
+}`,
+  },
 ];
 
 // Common MCP Server structure
@@ -441,10 +458,22 @@ export interface UniversalConfig {
   servers: UniversalMcpServer[];
 }
 
+// Claude Code format
+export interface ClaudeCodeConfig {
+  mcpServers: Record<string, McpServerBase>;
+  allowedMcpServers?: string[];
+  deniedMcpServers?: string[];
+}
+
 export function detectFormat(config: unknown): EditorType | null {
   if (typeof config !== 'object' || config === null) return null;
 
   const obj = config as Record<string, unknown>;
+
+  // Claude Code specific: has "allowedMcpServers" or "deniedMcpServers" key
+  if ('allowedMcpServers' in obj || 'deniedMcpServers' in obj) {
+    return 'claude-code';
+  }
 
   // Codex CLI specific: has "mcp_servers" key (underscore)
   if ('mcp_servers' in obj && typeof obj.mcp_servers === 'object') {

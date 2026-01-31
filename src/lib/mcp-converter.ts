@@ -16,6 +16,7 @@ import type {
   CodexCliConfig,
   ClineConfig,
   WindsurfConfig,
+  ClaudeCodeConfig,
 } from './mcp-formats';
 import YAML from 'yaml';
 import * as TOML from '@iarna/toml';
@@ -44,6 +45,23 @@ export function parseToUniversal(config: unknown, sourceFormat: EditorType): Uni
       break;
     }
 
+
+
+    case 'claude-code': {
+      const cfg = config as ClaudeCodeConfig;
+      for (const [name, server] of Object.entries(cfg.mcpServers || {})) {
+        servers.push({
+          name,
+          transport: server.url ? 'http' : 'stdio',
+          command: server.command,
+          args: server.args,
+          env: server.env,
+          url: server.url,
+          headers: server.headers,
+        });
+      }
+      break;
+    }
 
     case 'cline': {
       const cfg = config as ClineConfig;
@@ -259,6 +277,25 @@ export function convertFromUniversal(universal: UniversalConfig, targetFormat: E
           ...(server.headers && Object.keys(server.headers).length && { headers: server.headers }),
         };
       }
+      return result;
+    }
+
+    case 'claude-code': {
+      const result: ClaudeCodeConfig = { mcpServers: {} };
+      const serverNames: string[] = [];
+
+      for (const server of universal.servers) {
+        serverNames.push(server.name);
+        result.mcpServers[server.name] = {
+          ...(server.command && { command: server.command }),
+          ...(server.args?.length && { args: server.args }),
+          ...(server.env && Object.keys(server.env).length && { env: server.env }),
+          ...(server.url && { url: server.url }),
+          ...(server.headers && Object.keys(server.headers).length && { headers: server.headers }),
+        };
+      }
+      // Automatically add all servers to allowed list for better UX
+      result.allowedMcpServers = serverNames;
       return result;
     }
 
