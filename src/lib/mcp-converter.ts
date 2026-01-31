@@ -286,7 +286,14 @@ export function convertFromUniversal(universal: UniversalConfig, targetFormat: E
 
       for (const server of universal.servers) {
         serverNames.push(server.name);
+
+        // Determine type based on transport/properties
+        let type = 'stdio';
+        if (server.transport === 'sse') type = 'sse';
+        else if (server.transport === 'http' || server.url) type = 'http';
+
         result.mcpServers[server.name] = {
+          type,
           ...(server.command && { command: server.command }),
           ...(server.args?.length && { args: server.args }),
           ...(server.env && Object.keys(server.env).length && { env: server.env }),

@@ -169,6 +169,7 @@ args = ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]`,
   'claude-code': `{
   "mcpServers": {
     "filesystem": {
+      "type": "stdio",
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
     }

@@ -459,8 +459,12 @@ export interface UniversalConfig {
 }
 
 // Claude Code format
+export interface ClaudeCodeMcpServer extends McpServerBase {
+  type?: string;
+}
+
 export interface ClaudeCodeConfig {
-  mcpServers: Record<string, McpServerBase>;
+  mcpServers: Record<string, ClaudeCodeMcpServer>;
   allowedMcpServers?: string[];
   deniedMcpServers?: string[];
 }

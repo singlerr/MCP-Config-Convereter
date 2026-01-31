@@ -164,6 +164,7 @@ env = { KEY = "val" }
         const claudeCodeConfig = {
             mcpServers: {
                 'cc-server': {
+                    type: 'stdio',
                     command: 'npx',
                     args: ['-y', 'server-pkg'],
                 },
@@ -195,6 +196,7 @@ env = { KEY = "val" }
             if (result.success) {
                 const output = JSON.parse(result.output);
                 expect(output.mcpServers['test-server']).toBeDefined();
+                expect(output.mcpServers['test-server'].type).toBe('stdio');
                 expect(output.allowedMcpServers).toContain('test-server');
             }
         });
