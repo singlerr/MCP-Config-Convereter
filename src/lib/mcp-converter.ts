@@ -238,6 +238,8 @@ export function parseToUniversal(config: unknown, sourceFormat: EditorType): Uni
           env: server.env,
           cwd: server.cwd,
           url: server.url,
+          // Convert startup_timeout_sec (seconds) to timeout (milliseconds)
+          ...(server.startup_timeout_sec && { timeout: server.startup_timeout_sec * 1000 }),
         });
       }
       break;
@@ -356,6 +358,7 @@ export function convertFromUniversal(universal: UniversalConfig, targetFormat: E
             type: 'local' as const,
             ...(commandArray && { command: commandArray }),
             ...(server.env && Object.keys(server.env).length && { environment: server.env }),
+            ...(server.cwd && { cwd: server.cwd }),
             enabled: true,
           };
         }
@@ -371,6 +374,7 @@ export function convertFromUniversal(universal: UniversalConfig, targetFormat: E
           ...(server.args?.length && { args: server.args }),
           ...(server.env && Object.keys(server.env).length && { env: server.env }),
           ...(server.cwd && { cwd: server.cwd }),
+          // Gemini supports both 'url' and 'httpUrl' - use 'url' as primary
           ...(server.url && { url: server.url }),
           ...(server.headers && Object.keys(server.headers).length && { headers: server.headers }),
           ...(server.timeout && { timeout: server.timeout }),
@@ -501,6 +505,8 @@ export function convertFromUniversal(universal: UniversalConfig, targetFormat: E
           ...(server.env && Object.keys(server.env).length && { env: server.env }),
           ...(server.cwd && { cwd: server.cwd }),
           ...(server.url && { url: server.url }),
+          // Convert timeout (milliseconds) to startup_timeout_sec (seconds)
+          ...(server.timeout && { startup_timeout_sec: Math.round(server.timeout / 1000) }),
         };
       }
       return result;
