@@ -69,6 +69,26 @@
     "codex-cli": {
       "name": "Codex CLI",
       "description": "OpenAI Codex CLI (TOML 형식)"
+    },
+    "ampcode": {
+      "name": "AmpCode",
+      "description": "Sourcegraph AI 코딩 에이전트"
+    },
+    "zed": {
+      "name": "Zed",
+      "description": "고성능 코드 에디터"
+    },
+    "sourcegraph-cody": {
+      "name": "Sourcegraph Cody",
+      "description": "Sourcegraph AI 코딩 어시스턴트"
+    },
+    "goose": {
+      "name": "Goose",
+      "description": "오픈소스 AI 에이전트 (YAML 형식)"
+    },
+    "librechat": {
+      "name": "LibreChat",
+      "description": "셀프 호스팅 AI 채팅 인터페이스 (YAML 형식)"
     }
   },
   "input": {

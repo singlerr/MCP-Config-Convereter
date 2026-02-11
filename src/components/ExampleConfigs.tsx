@@ -176,6 +176,62 @@ args = ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]`,
   },
   "allowedMcpServers": ["filesystem"]
 }`,
+  ampcode: `{
+  "amp.mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    },
+    "github": {
+      "command": "uvx",
+      "args": ["mcp-server-github"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_your_token_here"
+      }
+    }
+  }`,
+  zed: `{
+  "context_servers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}`,
+  'sourcegraph-cody': `{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
+      "env": {
+        "CODY_TOKEN": "your_token_here"
+      }
+    }
+  }
+}`,
+  goose: `extensions:
+  filesystem:
+    type: stdio
+    cmd: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-filesystem"
+      - "/path/to/files"
+    enabled: true
+    envs:
+      NODE_ENV: production`,
+  librechat: `mcpServers:
+  filesystem:
+    type: stdio
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-filesystem"
+      - "/path/to/files"
+    timeout: 60000`,
 };
 
 

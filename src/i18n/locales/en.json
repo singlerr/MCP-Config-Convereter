@@ -69,6 +69,26 @@
     "codex-cli": {
       "name": "Codex CLI",
       "description": "OpenAI Codex CLI (TOML format)"
+    },
+    "ampcode": {
+      "name": "AmpCode",
+      "description": "Sourcegraph AI Coding Agent"
+    },
+    "zed": {
+      "name": "Zed",
+      "description": "High-performance code editor"
+    },
+    "sourcegraph-cody": {
+      "name": "Sourcegraph Cody",
+      "description": "AI coding assistant by Sourcegraph"
+    },
+    "goose": {
+      "name": "Goose",
+      "description": "Open-source AI agent (YAML)"
+    },
+    "librechat": {
+      "name": "LibreChat",
+      "description": "Self-hosted AI chat interface (YAML)"
     }
   },
   "input": {

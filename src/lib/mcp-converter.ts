@@ -17,6 +17,11 @@ import type {
   ClineConfig,
   WindsurfConfig,
   ClaudeCodeConfig,
+  AmpCodeConfig,
+  ZedConfig,
+  SourcegraphCodyConfig,
+  GooseConfig,
+  LibreChatConfig,
 } from './mcp-formats';
 import YAML from 'yaml';
 import * as TOML from '@iarna/toml';
@@ -240,6 +245,88 @@ export function parseToUniversal(config: unknown, sourceFormat: EditorType): Uni
           url: server.url,
           // Convert startup_timeout_sec (seconds) to timeout (milliseconds)
           ...(server.startup_timeout_sec && { timeout: server.startup_timeout_sec * 1000 }),
+        });
+      }
+      break;
+    }
+
+    case 'ampcode': {
+      const cfg = config as AmpCodeConfig;
+      const mcpServers = cfg['amp.mcpServers'] || {};
+      for (const [name, server] of Object.entries(mcpServers)) {
+        servers.push({
+          name,
+          transport: server.url ? 'http' : 'stdio',
+          command: server.command,
+          args: server.args,
+          env: server.env,
+          url: server.url,
+          headers: server.headers,
+        });
+      }
+      break;
+    }
+
+    case 'zed': {
+      const cfg = config as ZedConfig;
+      for (const [name, server] of Object.entries(cfg.context_servers || {})) {
+        servers.push({
+          name,
+          transport: server.url ? 'http' : 'stdio',
+          command: server.command,
+          args: server.args,
+          env: server.env,
+          url: server.url,
+          headers: server.headers,
+        });
+      }
+      break;
+    }
+
+    case 'sourcegraph-cody': {
+      const cfg = config as SourcegraphCodyConfig;
+      for (const [name, server] of Object.entries(cfg.mcpServers || {})) {
+        servers.push({
+          name,
+          transport: server.url ? 'http' : 'stdio',
+          command: server.command,
+          args: server.args,
+          env: server.env,
+          url: server.url,
+          headers: server.headers,
+        });
+      }
+      break;
+    }
+
+    case 'goose': {
+      const cfg = config as GooseConfig;
+      for (const [name, ext] of Object.entries(cfg.extensions || {})) {
+        servers.push({
+          name,
+          transport: ext.url ? (ext.type === 'sse' ? 'sse' : 'http') : 'stdio',
+          command: ext.cmd,
+          args: ext.args,
+          env: ext.envs,
+          url: ext.url,
+          ...(ext.timeout && { timeout: ext.timeout * 1000 }),
+        });
+      }
+      break;
+    }
+
+    case 'librechat': {
+      const cfg = config as LibreChatConfig;
+      for (const [name, server] of Object.entries(cfg.mcpServers || {})) {
+        servers.push({
+          name,
+          transport: server.type === 'sse' ? 'sse' : (server.url ? 'http' : 'stdio'),
+          command: server.command,
+          args: server.args,
+          env: server.env,
+          url: server.url,
+          headers: server.headers,
+          timeout: server.timeout,
         });
       }
       break;
@@ -511,6 +598,86 @@ export function convertFromUniversal(universal: UniversalConfig, targetFormat: E
       }
       return result;
     }
+
+    case 'ampcode': {
+      const result: AmpCodeConfig = { 'amp.mcpServers': {} };
+      for (const server of universal.servers) {
+        const isRemote = server.transport !== 'stdio' || !!server.url;
+        result['amp.mcpServers'][server.name] = {
+          ...(isRemote ? { type: 'remote' as const } : { type: 'local' as const }),
+          ...(server.command && { command: server.command }),
+          ...(server.args?.length && { args: server.args }),
+          ...(server.env && Object.keys(server.env).length && { env: server.env }),
+          ...(server.url && { url: server.url }),
+          ...(server.headers && Object.keys(server.headers).length && { headers: server.headers }),
+        };
+      }
+      return result;
+    }
+
+    case 'zed': {
+      const result: ZedConfig = { context_servers: {} };
+      for (const server of universal.servers) {
+        result.context_servers[server.name] = {
+          ...(server.command && { command: server.command }),
+          ...(server.args?.length && { args: server.args }),
+          ...(server.env && Object.keys(server.env).length && { env: server.env }),
+          ...(server.url && { url: server.url }),
+          ...(server.headers && Object.keys(server.headers).length && { headers: server.headers }),
+        };
+      }
+      return result;
+    }
+
+    case 'sourcegraph-cody': {
+      const result: SourcegraphCodyConfig = { mcpServers: {} };
+      for (const server of universal.servers) {
+        result.mcpServers[server.name] = {
+          ...(server.command && { command: server.command }),
+          ...(server.args?.length && { args: server.args }),
+          ...(server.env && Object.keys(server.env).length && { env: server.env }),
+          ...(server.url && { url: server.url }),
+          ...(server.headers && Object.keys(server.headers).length && { headers: server.headers }),
+        };
+      }
+      return result;
+    }
+
+    case 'goose': {
+      const result: GooseConfig = { extensions: {} };
+      for (const server of universal.servers) {
+        result.extensions[server.name] = {
+          type: server.url ? (server.transport === 'sse' ? 'sse' : 'stdio') : 'stdio',
+          ...(server.command && { cmd: server.command }),
+          ...(server.args?.length && { args: server.args }),
+          ...(server.env && Object.keys(server.env).length && { envs: server.env }),
+          ...(server.url && { url: server.url }),
+          enabled: true,
+          ...(server.timeout && { timeout: Math.round(server.timeout / 1000) }),
+        };
+      }
+      return result;
+    }
+
+    case 'librechat': {
+      const result: LibreChatConfig = { mcpServers: {} };
+      for (const server of universal.servers) {
+        let type: 'stdio' | 'sse' | 'streamable-http' = 'stdio';
+        if (server.transport === 'sse') type = 'sse';
+        else if (server.transport === 'http' || server.url) type = 'streamable-http';
+
+        result.mcpServers[server.name] = {
+          type,
+          ...(server.command && { command: server.command }),
+          ...(server.args?.length && { args: server.args }),
+          ...(server.env && Object.keys(server.env).length && { env: server.env }),
+          ...(server.url && { url: server.url }),
+          ...(server.headers && Object.keys(server.headers).length && { headers: server.headers }),
+          ...(server.timeout && { timeout: server.timeout }),
+        };
+      }
+      return result;
+    }
   }
 }
 
@@ -646,12 +813,12 @@ export function convertConfig(
     let parsed: unknown;
 
     // Parse input based on source format
-    if (sourceFormat === 'continue-dev') {
-      // Continue Dev uses YAML
+    if (sourceFormat === 'continue-dev' || sourceFormat === 'goose' || sourceFormat === 'librechat') {
+      // Continue Dev, Goose, and LibreChat use YAML
       try {
         parsed = YAML.parse(inputConfig);
       } catch {
-        throw new Error('유효하지 않은 YAML 형식입니다. Continue Dev 설정 파일을 확인해 주세요.');
+        throw new Error('유효하지 않은 YAML 형식입니다. 설정 파일을 확인해 주세요.');
       }
     } else if (sourceFormat === 'codex-cli') {
       // Codex CLI uses TOML
@@ -678,8 +845,8 @@ export function convertConfig(
 
     // Format output based on target format
     let output: string;
-    if (targetFormat === 'continue-dev') {
-      // Continue Dev uses YAML
+    if (targetFormat === 'continue-dev' || targetFormat === 'goose' || targetFormat === 'librechat') {
+      // Continue Dev, Goose, and LibreChat use YAML
       output = YAML.stringify(converted);
     } else if (targetFormat === 'codex-cli') {
       // Codex CLI uses TOML

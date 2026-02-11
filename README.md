@@ -28,17 +28,28 @@
 
 ## Supported Editors
 
-| Editor | Config File | Documentation |
-|--------|-------------|---------------|
-| **Claude Desktop** | `claude_desktop_config.json` | [Docs](https://modelcontextprotocol.io/quickstart/user) |
-| **VS Code** (GitHub Copilot) | `.vscode/mcp.json` | [Docs](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) |
-| **Cursor** | `.cursor/mcp.json` | [Docs](https://docs.cursor.com/context/model-context-protocol) |
-| **Cline** | `cline_mcp_settings.json` | [Docs](https://github.com/cline/cline) |
-| **Windsurf** | `~/.codeium/windsurf/mcp_config.json` | [Docs](https://docs.codeium.com/) |
-| **OpenCode** | `opencode.json` | [Docs](https://opencode.ai/docs/mcp) |
-| **Gemini CLI** | `settings.json` | [Docs](https://github.com/google-gemini/gemini-cli) |
-| **LM Studio** | `mcp.json` | [Docs](https://lmstudio.ai/docs/mcp) |
-| **Antigravity** | `mcp_config.json` | [Docs](https://antigravity.dev) |
+| Editor | Config Format | Config File | Documentation |
+|--------|---------------|-------------|---------------|
+| **Claude Desktop** | JSON | `claude_desktop_config.json` | [Docs](https://modelcontextprotocol.io/quickstart/user) |
+| **VS Code** (GitHub Copilot) | JSON | `.vscode/mcp.json` | [Docs](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) |
+| **Cursor** | JSON | `.cursor/mcp.json` | [Docs](https://docs.cursor.com/context/model-context-protocol) |
+| **Cline** | JSON | `cline_mcp_settings.json` | [Docs](https://github.com/cline/cline) |
+| **Windsurf** | JSON | `~/.codeium/windsurf/mcp_config.json` | [Docs](https://docs.codeium.com/) |
+| **OpenCode** | JSON | `opencode.json` | [Docs](https://opencode.ai/docs/mcp) |
+| **Gemini CLI** | JSON | `settings.json` | [Docs](https://github.com/google-gemini/gemini-cli) |
+| **LM Studio** | JSON | `mcp.json` | [Docs](https://lmstudio.ai/docs/mcp) |
+| **Antigravity** | JSON | `mcp_config.json` | [Docs](https://antigravity.dev) |
+| **JetBrains Junie / AI Assistant** | JSON | `.junie/mcp/mcp.json` | [Docs](https://www.jetbrains.com/help/idea/ai-assistant.html) |
+| **Roo Code** | JSON | `.roo/mcp.json` | [Docs](https://docs.roocode.com/features/mcp/using-mcp-in-roo) |
+| **GitHub Copilot CLI** | JSON | `mcp-config.json` | [Docs](https://github.com/github/copilot-cli) |
+| **Continue** | YAML | `.continue/mcpServers/*.yaml` | [Docs](https://docs.continue.dev/customize/deep-dives/mcp) |
+| **Codex CLI** | TOML | `~/.codex/config.toml` | [Docs](https://openai.com/codex) |
+| **Claude Code** | JSON | `.claude.json` | [Docs](https://code.claude.com/docs/mcp) |
+| **AmpCode** | JSON | `.amp/settings.json` | [Docs](https://ampcode.com) |
+| **Zed** | JSON | `settings.json` | [Docs](https://zed.dev/docs/assistant/model-context-protocol) |
+| **Sourcegraph Cody** | JSON | `mcp_servers.json` | [Docs](https://sourcegraph.com/docs/cody/clients/mcp) |
+| **Goose** | YAML | `config.yaml` | [Docs](https://block.github.io/goose/docs/getting-started/using-extensions) |
+| **LibreChat** | YAML | `librechat.yaml` | [Docs](https://www.librechat.ai/docs/configuration/mcp_servers) |
 
 ## Features
 
@@ -215,24 +226,39 @@ mcpconv editors
 
 Each editor has unique configuration features:
 
-| Feature | Claude Desktop | VS Code | Cursor | Cline | Windsurf | OpenCode | Gemini CLI | LM Studio |
-|---------|----------------|---------|--------|-------|----------|----------|------------|-----------|
-| Root Key | `mcpServers` | `servers` | `mcpServers` | `mcpServers` | `mcpServers` | `mcp` | `mcpServers` | `mcpServers` |
-| Config Path | `claude_desktop_config.json` | `.vscode/mcp.json` | `.cursor/mcp.json` | `cline_mcp_settings.json` | `~/.codeium/windsurf/mcp_config.json` | `opencode.json` | `settings.json` | `mcp.json` |
-| Type Field | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ (`local`/`remote`) | ❌ | ❌ |
-| URL Support | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ (`httpUrl`) | ✅ |
-| Headers | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Timeout | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
-| Command Array | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| Auto-Approval | ❌ | ❌ | `autoApprove` | `alwaysAllow` + `autoApprove` | ❌ | ❌ | ❌ | ❌ |
-| Disabled Flag | ❌ | ❌ | ✅ | ✅ | ❌ | `enabled` | ❌ | ❌ |
+| Editor | Root Key | Format | Type Field | Timeout | Special Fields |
+|--------|----------|--------|------------|---------|----------------|
+| Claude Desktop | `mcpServers` | JSON | ❌ | ❌ | — |
+| VS Code | `servers` | JSON | ✅ | ❌ | `envFile`, `cwd` |
+| Cursor | `mcpServers` | JSON | ❌ | ❌ | `autoApprove`, `disabled` |
+| Cline | `mcpServers` | JSON | ❌ | ❌ | `alwaysAllow`, `autoApprove` |
+| Windsurf | `mcpServers` | JSON | ❌ | ❌ | — |
+| OpenCode | `mcp` | JSON | ✅ (`local`/`remote`) | ❌ | Command as array, `enabled` |
+| Gemini CLI | `mcpServers` | JSON | ❌ | ✅ | `httpUrl`, `trust`, `includeTools` |
+| LM Studio | `mcpServers` | JSON | ❌ | ❌ | — |
+| Antigravity | `mcpServers` | JSON | ❌ | ❌ | `serverUrl` |
+| Junie | `mcpServers` | JSON | ❌ | ❌ | — |
+| Roo Code | `mcpServers` | JSON | ❌ | ❌ | `alwaysAllow`, `disabled` |
+| Copilot CLI | `servers` | JSON | ❌ | ❌ | Same structure as VS Code |
+| Continue | `mcpServers` (array) | YAML | ✅ | ❌ | Array-based, `name` field |
+| Codex CLI | `mcp_servers` | TOML | ❌ | ✅ (`startup_timeout_sec`) | — |
+| Claude Code | `mcpServers` | JSON | ❌ | ❌ | `allowedMcpServers` |
+| AmpCode | `amp.mcpServers` | JSON | ✅ | ❌ | — |
+| Zed | `context_servers` | JSON | ❌ | ❌ | — |
+| Sourcegraph Cody | `mcpServers` | JSON | ❌ | ❌ | — |
+| Goose | `extensions` | YAML | ✅ | ✅ (seconds) | `cmd`, `envs`, `enabled` |
+| LibreChat | `mcpServers` | YAML | ✅ | ✅ (ms) | — |
 
 **Key Differences:**
-- **VS Code** uses `servers` as the root key instead of `mcpServers`
-- **Cline** uniquely supports both `alwaysAllow` and `autoApprove` arrays for permission control
-- **Windsurf** stores configs at `~/.codeium/windsurf/mcp_config.json`
-- **Cursor** only has `autoApprove`, while **Cline** has both `alwaysAllow` and `autoApprove`
-- **OpenCode** uses `mcp` as root key and supports command as array format
+- **VS Code / Copilot CLI** use `servers` as the root key instead of `mcpServers`
+- **Zed** uses `context_servers` as the root key
+- **AmpCode** uses `amp.mcpServers` (dotted key)
+- **Goose** uses `extensions` with `cmd`/`envs` instead of `command`/`env`
+- **Continue** uses an array of server objects (with `name` field), not a key-value map
+- **Codex CLI** uses TOML format with underscore naming (`mcp_servers`)
+- **Claude Code** adds `allowedMcpServers`/`deniedMcpServers` access control lists
+- **Cline** supports both `alwaysAllow` and `autoApprove`; **Cursor** only has `autoApprove`
+- **OpenCode** supports command as array and uses `mcp` as root key
 
 ## Tech Stack
 

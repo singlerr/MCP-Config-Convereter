@@ -13,7 +13,12 @@ export type EditorType =
   | 'codex-cli'
   | 'cline'
   | 'windsurf'
-  | 'claude-code';
+  | 'claude-code'
+  | 'ampcode'
+  | 'zed'
+  | 'sourcegraph-cody'
+  | 'goose'
+  | 'librechat';
 
 export interface EditorInfo {
   id: EditorType;
@@ -317,6 +322,98 @@ startup_timeout_sec = 60`,
   },
   "allowedMcpServers": ["filesystem", "github"]
 }`,
+  },
+  {
+    id: 'ampcode',
+    name: 'AmpCode',
+    description: 'Sourcegraph AI Coding Agent',
+    configFileName: '.amp/settings.json',
+    docsUrl: 'https://ampcode.com',
+    exampleConfig: `{
+  "amp.mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"]
+    },
+    "github": {
+      "command": "uvx",
+      "args": ["mcp-server-github"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_your_token_here"
+      }
+    }
+  }
+}`,
+  },
+  {
+    id: 'zed',
+    name: 'Zed',
+    description: 'High-performance code editor',
+    configFileName: 'settings.json',
+    docsUrl: 'https://zed.dev/docs/assistant/model-context-protocol',
+    exampleConfig: `{
+  "context_servers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}`,
+  },
+  {
+    id: 'sourcegraph-cody',
+    name: 'Sourcegraph Cody',
+    description: 'AI coding assistant by Sourcegraph',
+    configFileName: 'mcp_servers.json',
+    docsUrl: 'https://sourcegraph.com/docs/cody/clients/mcp',
+    exampleConfig: `{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/files"],
+      "env": {
+        "CODY_TOKEN": "your_token_here"
+      }
+    }
+  }
+}`,
+  },
+  {
+    id: 'goose',
+    name: 'Goose',
+    description: 'Open-source AI agent (YAML)',
+    configFileName: 'config.yaml',
+    docsUrl: 'https://block.github.io/goose/docs/getting-started/using-extensions',
+    exampleConfig: `extensions:
+  filesystem:
+    type: stdio
+    cmd: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-filesystem"
+      - "/path/to/files"
+    enabled: true
+    envs:
+      NODE_ENV: production`,
+  },
+  {
+    id: 'librechat',
+    name: 'LibreChat',
+    description: 'Self-hosted AI chat interface (YAML)',
+    configFileName: 'librechat.yaml',
+    docsUrl: 'https://www.librechat.ai/docs/configuration/mcp_servers',
+    exampleConfig: `mcpServers:
+  filesystem:
+    type: stdio
+    command: npx
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-filesystem"
+      - "/path/to/files"
+    timeout: 60000`,
   },
 ];
 
@@ -827,6 +924,182 @@ export interface ClaudeCodeConfig {
   deniedMcpServers?: string[];
 }
 
+/**
+ * AmpCode MCP server configuration.
+ * 
+ * @remarks
+ * Supports both local and remote server types with optional enabled flag.
+ */
+export interface AmpCodeMcpServer {
+  type?: 'local' | 'remote';
+  command?: string;
+  args?: string[];
+  env?: Record<string, string>;
+  url?: string;
+  headers?: Record<string, string>;
+  enabled?: boolean;
+}
+
+/**
+ * AmpCode MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - Project: `.amp/settings.json`
+ * 
+ * **Key Structure:**
+ * - Uses `amp.mcpServers` namespaced key within a settings JSON file
+ * - Supports both local and remote server types
+ * 
+ * **Field Support:**
+ * - `type`: 'local' or 'remote' server type
+ * - `command`, `args`: For local servers
+ * - `env`: Environment variables
+ * - `url`, `headers`: For remote servers
+ * - `enabled`: Boolean to enable/disable server
+ */
+export interface AmpCodeConfig {
+  'amp.mcpServers': Record<string, AmpCodeMcpServer>;
+}
+
+/**
+ * Zed editor MCP server configuration.
+ * 
+ * @remarks
+ * Follows standard base format.
+ */
+export type ZedMcpServer = McpServerBase;
+
+/**
+ * Zed MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - `~/.config/zed/settings.json` (Linux/macOS)
+ * - `%APPDATA%\Zed\settings.json` (Windows)
+ * - Project: `.zed/settings.json`
+ * 
+ * **Key Structure:**
+ * - Uses `context_servers` (not `mcpServers`) object with server name as keys
+ * 
+ * **Field Support:**
+ * - Standard fields: `command`, `args`, `env`
+ * - `url`, `headers` for HTTP transport
+ */
+export interface ZedConfig {
+  context_servers: Record<string, ZedMcpServer>;
+}
+
+/**
+ * Sourcegraph Cody MCP server configuration.
+ * 
+ * @remarks
+ * Standard format identical to Claude Desktop.
+ */
+export type SourcegraphCodyMcpServer = McpServerBase;
+
+/**
+ * Sourcegraph Cody MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - `~/.config/cody/mcp_servers.json` (Linux/macOS)
+ * - `%USERPROFILE%\.config\cody\mcp_servers.json` (Windows)
+ * 
+ * **Key Structure:**
+ * - Uses `mcpServers` object with server name as keys
+ * 
+ * **Field Support:**
+ * - Standard fields: `command`, `args`, `env`
+ */
+export interface SourcegraphCodyConfig {
+  mcpServers: Record<string, SourcegraphCodyMcpServer>;
+}
+
+/**
+ * Goose MCP extension (server) configuration.
+ * 
+ * @remarks
+ * Uses non-standard field names: `cmd` instead of `command`, `envs` instead of `env`.
+ */
+export interface GooseMcpExtension {
+  type?: 'stdio' | 'sse' | 'streamable-http';
+  cmd?: string;
+  args?: string[];
+  env_keys?: string[];
+  envs?: Record<string, string>;
+  enabled?: boolean;
+  timeout?: number;
+  name?: string;
+  display_name?: string;
+  url?: string;
+}
+
+/**
+ * Goose MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - `~/.config/goose/config.yaml`
+ * 
+ * **Key Structure:**
+ * - Uses YAML format
+ * - `extensions` is an object with extension name as key
+ * - Uses `cmd` (not `command`) and `envs` (not `env`)
+ * 
+ * **Field Support:**
+ * - `type`: Transport type ('stdio', 'sse', 'streamable-http')
+ * - `cmd`, `args`: For stdio transport
+ * - `envs`: Environment variables (not `env`)
+ * - `env_keys`: Array of required env var names
+ * - `enabled`: Boolean to enable/disable
+ * - `timeout`: Timeout in seconds
+ * - `url`: For SSE/HTTP transport
+ */
+export interface GooseConfig {
+  extensions: Record<string, GooseMcpExtension>;
+}
+
+/**
+ * LibreChat MCP server configuration.
+ * 
+ * @remarks
+ * Extends standard format with transport type and description.
+ */
+export interface LibreChatMcpServer {
+  type?: 'stdio' | 'websocket' | 'sse' | 'streamable-http';
+  command?: string;
+  args?: string[];
+  env?: Record<string, string>;
+  url?: string;
+  headers?: Record<string, string>;
+  description?: string;
+  timeout?: number;
+}
+
+/**
+ * LibreChat MCP configuration format.
+ * 
+ * @remarks
+ * **Official Config Path:**
+ * - `librechat.yaml` in project root
+ * 
+ * **Key Structure:**
+ * - Uses YAML format
+ * - `mcpServers` object with server name as keys
+ * 
+ * **Field Support:**
+ * - `type`: Transport type ('stdio', 'websocket', 'sse', 'streamable-http')
+ * - `command`, `args`: For stdio transport
+ * - `env`: Environment variables
+ * - `url`, `headers`: For remote transport
+ * - `description`: Human-readable server description
+ * - `timeout`: Timeout in milliseconds
+ */
+export interface LibreChatConfig {
+  mcpServers: Record<string, LibreChatMcpServer>;
+}
+
 export function detectFormat(config: unknown): EditorType | null {
   if (typeof config !== 'object' || config === null) return null;
 
@@ -845,6 +1118,21 @@ export function detectFormat(config: unknown): EditorType | null {
   // VS Code / Copilot CLI specific: has "servers" key (not "mcpServers")
   if ('servers' in obj && typeof obj.servers === 'object') {
     return 'vscode';
+  }
+
+  // AmpCode specific: has "amp.mcpServers" key
+  if ('amp.mcpServers' in obj && typeof obj['amp.mcpServers'] === 'object') {
+    return 'ampcode';
+  }
+
+  // Zed specific: has "context_servers" key
+  if ('context_servers' in obj && typeof obj.context_servers === 'object') {
+    return 'zed';
+  }
+
+  // Goose specific: has "extensions" key (YAML-parsed)
+  if ('extensions' in obj && typeof obj.extensions === 'object') {
+    return 'goose';
   }
 
   // OpenCode specific: has "mcp" key
